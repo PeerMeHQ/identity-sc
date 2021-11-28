@@ -1,0 +1,15 @@
+[package]
+name = "identity-meta"
+version = "0.1.0"
+authors = ["Micha Vie <micha@freeiam.com>", "Superciety <hello@superciety.com>"]
+edition = "2018"
+publish = false
+
+[dependencies.identity]
+path = ".."
+
+[dependencies.elrond-wasm]
+version = "0.23.1"
+
+[dependencies.elrond-wasm-debug]
+version = "0.23.1"
