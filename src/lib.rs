@@ -41,6 +41,16 @@ pub trait Identity {
         Ok(())
     }
 
+    #[view(getImageNftIdByAddress)]
+    fn get_image_nft_id(&self, address: ManagedAddress) -> OptionalResult<MultiResult2<TokenIdentifier, u64>> {
+        if (self.image_nfts_by_address(&address).is_empty()) {
+            OptionalResult::None
+        } else {
+            let nft = self.image_nfts_by_address(&address).get();
+            OptionalResult::Some((nft.token_id, nft.nonce).into())
+        }
+    }
+
     #[storage_mapper("costTokenId")]
     fn cost_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
