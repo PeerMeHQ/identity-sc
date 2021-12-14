@@ -14,7 +14,7 @@ pub trait Identity {
     #[init]
     fn init(&self, cost_token: TokenIdentifier, image_update_cost: BigUint) {
         self.cost_token_id().set(&cost_token);
-        self.image_update_cost_amount().set(&image_update_cost);
+        self.image_update_cost().set(&image_update_cost);
     }
 
     #[payable("*")]
@@ -28,7 +28,7 @@ pub trait Identity {
     ) -> SCResult<()> {
         require!(nft_id.is_valid_esdt_identifier(), "not an nft");
         require!(cost_token_id == self.cost_token_id().get(), "invalid token");
-        require!(cost_amount >= self.image_update_cost_amount().get(), "invalid amount");
+        require!(cost_amount >= self.image_update_cost().get(), "invalid amount");
 
         let caller = self.blockchain().get_caller();
         let image_nft = ImageNft {
@@ -51,12 +51,12 @@ pub trait Identity {
         }
     }
 
-    #[storage_mapper("costTokenId")]
+    #[storage_mapper("cost_token_id")]
     fn cost_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[storage_mapper("costImageUpdateAmount")]
-    fn image_update_cost_amount(&self) -> SingleValueMapper<BigUint>;
+    #[storage_mapper("cost_image_update")]
+    fn image_update_cost(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("imagesNfts")]
+    #[storage_mapper("images_by_address")]
     fn image_nfts_by_address(&self, address: &ManagedAddress) -> SingleValueMapper<ImageNft<Self::Api>>;
 }
