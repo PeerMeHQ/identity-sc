@@ -30,13 +30,12 @@ pub trait Identity {
         require!(cost_token_id == self.cost_token_id().get(), "invalid token");
         require!(cost_amount >= self.image_update_cost().get(), "invalid amount");
 
-        let caller = self.blockchain().get_caller();
-        let image_nft = ImageNft {
+        self.image_nfts_by_address(&self.blockchain().get_caller()).set(&ImageNft {
             token_id: nft_id,
             nonce: nft_nonce,
-        };
+        });
 
-        self.image_nfts_by_address(&caller).set(&image_nft);
+        self.burn_cost_tokens(&cost_token_id, &cost_amount);
 
         Ok(())
     }
@@ -51,6 +50,11 @@ pub trait Identity {
         }
     }
 
+    fn burn_cost_tokens(&self, token_id: &TokenIdentifier, amount: &BigUint) {
+        self.send().esdt_local_burn(&token_id, 0, &amount);
+        self.burned_tokens().update(|current| *current += amount);
+    }
+
     #[storage_mapper("cost_token_id")]
     fn cost_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
@@ -59,4 +63,7 @@ pub trait Identity {
 
     #[storage_mapper("images_by_address")]
     fn image_nfts_by_address(&self, address: &ManagedAddress) -> SingleValueMapper<ImageNft<Self::Api>>;
+
+    #[storage_mapper("burned_tokens")]
+    fn burned_tokens(&self) -> SingleValueMapper<BigUint>;
 }
