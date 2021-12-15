@@ -2,9 +2,10 @@
 NETWORK_NAME="testnet" # devnet, testnet, mainnet
 DEPLOYER="./deployer.pem" # main actor pem file
 PROXY=https://testnet-gateway.elrond.com
+CHAIN_ID="T"
 
-COST_TOKEN_ID=0x5853555045522d333464396561 # in hex
-IMAGE_UPDATE_COST=200 # in super tokens
+COST_TOKEN_ID=0x53555045522d373634643864 # in hex
+IMAGE_UPDATE_COST=500 # in super tokens
 
 ##### - configuration end - #####
 
@@ -20,11 +21,13 @@ deploy() {
         --project . \
         --arguments ${COST_TOKEN_ID} ${IMAGE_UPDATE_COST} \
         --recall-nonce \
-        --pem=${DEPLOYER} \
+        --keyfile="./main.json" \
+        --passfile="./pass.txt" \
         --gas-limit=50000000 \
-        --send \
         --outfile="deploy-${NETWORK_NAME}.interaction.json" \
-        --proxy=${PROXY} --chain=T || return
+        --proxy=${PROXY} \
+        --chain=${CHAIN_ID} \
+        --send || return
 
     TRANSACTION=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emitted_tx']['hash']")
     ADDRESS=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emitted_tx']['address']")
@@ -47,8 +50,9 @@ upgrade() {
         --recall-nonce \
         --pem=${DEPLOYER} \
         --gas-limit=50000000 \
-        --send \
-        --proxy=${PROXY} --chain=T || return
+        --proxy=${PROXY} \
+        --chain=${CHAIN_ID} \
+        --send || return
 
     echo ""
     echo "upgraded smart contract"
