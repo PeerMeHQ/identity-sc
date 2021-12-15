@@ -4,7 +4,7 @@ DEPLOYER="./deployer.pem" # main actor pem file
 PROXY=https://testnet-gateway.elrond.com
 CHAIN_ID="T"
 
-COST_TOKEN_ID=0x53555045522d373634643864 # in hex
+COST_TOKEN_ID=0x # in hex
 IMAGE_UPDATE_COST=500 # in super tokens
 
 ##### - configuration end - #####
@@ -21,8 +21,7 @@ deploy() {
         --project . \
         --arguments ${COST_TOKEN_ID} ${IMAGE_UPDATE_COST} \
         --recall-nonce \
-        --keyfile="./main.json" \
-        --passfile="./pass.txt" \
+        --pem=${DEPLOYER} \
         --gas-limit=50000000 \
         --proxy=${PROXY} \
         --chain=${CHAIN_ID} \
@@ -55,4 +54,24 @@ upgrade() {
 
     echo ""
     echo "upgraded smart contract"
+}
+
+addBurnRole() {
+    echo "adding ESDTLocalBurn role for ${ADDRESS} ..."
+
+    sc_address_hex="0x$(erdpy wallet bech32 --decode ${ADDRESS})"
+    burn_role_hex="0x45534454526f6c654c6f63616c4275726e"
+
+    erdpy --verbose contract call erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u \
+        --function=setSpecialRole \
+        --arguments ${COST_TOKEN_ID} $sc_address_hex $burn_role_hex  \
+        --recall-nonce \
+        --pem=${DEPLOYER} \
+        --gas-limit=60000000 \
+        --proxy=${PROXY} \
+        --chain=${CHAIN_ID} \
+        --send || return
+
+    echo ""
+    echo "local burn role added!"
 }
