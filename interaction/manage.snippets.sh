@@ -24,7 +24,6 @@ deploy() {
         --keyfile="./main.json" \
         --passfile="./pass.txt" \
         --gas-limit=50000000 \
-        --outfile="deploy-${NETWORK_NAME}.interaction.json" \
         --proxy=${PROXY} \
         --chain=${CHAIN_ID} \
         --send || return
