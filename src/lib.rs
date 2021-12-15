@@ -13,8 +13,8 @@ pub struct ImageNft<M: ManagedTypeApi> {
 pub trait Identity {
     #[init]
     fn init(&self, cost_token: TokenIdentifier, image_update_cost: BigUint) {
-        self.cost_token_id().set(&cost_token);
-        self.image_update_cost().set(&image_update_cost);
+        self.cost_token_id().set_if_empty(&cost_token);
+        self.image_update_cost().set_if_empty(&image_update_cost);
     }
 
     #[payable("*")]
