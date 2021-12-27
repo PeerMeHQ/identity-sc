@@ -60,7 +60,7 @@ addLocalBurnRole() {
     echo "adding ESDTLocalBurn role for ${ADDRESS} ..."
 
     sc_address_hex="0x$(erdpy wallet bech32 --decode ${ADDRESS})"
-    burn_role_hex="0x45534454526f6c654c6f63616c4275726e"
+    burn_role_hex="0x$(echo -n 'ESDTRoleLocalBurn' | xxd -p -u | tr -d '\n')"
 
     erdpy --verbose contract call erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u \
         --function=setSpecialRole \

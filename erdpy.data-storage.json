@@ -1,7 +1,7 @@
 {
     "testnet": {
-        "address": "erd1qqqqqqqqqqqqqpgqw3v88rdpsdegr4c36rgtvcjr00eeajxh27rs5p6774",
-        "deploy-transaction": "7dcfb3fa1fecc8ab962652af086342a2e31c7b0f6246de39b0cbf306427dfa6c"
+        "address": "erd1qqqqqqqqqqqqqpgqqjptfppx0kxjaeapa5e42fp0u57dnth427rsk8lqkd",
+        "deploy-transaction": "e89fe7fab8a0166526d323f23b030c3d6032354da74f76c775f2345d0364d0b8"
     },
     "mainnet": {
         "address": "erd1qqqqqqqqqqqqqpgq4kns8he9r84c58ed3jjuam3tp7u9zl4n27rsy2kv6u",
