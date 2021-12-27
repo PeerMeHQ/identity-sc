@@ -56,7 +56,7 @@ upgrade() {
     echo "upgraded smart contract"
 }
 
-addBurnRole() {
+addLocalBurnRole() {
     echo "adding ESDTLocalBurn role for ${ADDRESS} ..."
 
     sc_address_hex="0x$(erdpy wallet bech32 --decode ${ADDRESS})"
