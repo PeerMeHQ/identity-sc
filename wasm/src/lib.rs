@@ -10,6 +10,7 @@ elrond_wasm_node::wasm_endpoints! {
         init
         getImageNftIdByAddress
         setImage
+        updateImageSetCost
     )
 }
 

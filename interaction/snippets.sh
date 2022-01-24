@@ -5,7 +5,7 @@ PROXY=https://testnet-gateway.elrond.com
 CHAIN_ID="T"
 
 COST_TOKEN_ID=""
-IMAGE_UPDATE_COST=100 # in super tokens
+COST_IMAGE_SET=100 # in super tokens
 
 ##### - configuration end - #####
 
@@ -27,7 +27,7 @@ deploy() {
     echo "deploying to ${NETWORK_NAME} ..."
     erdpy --verbose contract deploy \
         --project . \
-        --arguments ${COST_TOKEN_ID_HEX} ${IMAGE_UPDATE_COST} \
+        --arguments ${COST_TOKEN_ID_HEX} ${COST_IMAGE_SET} \
         --recall-nonce \
         --pem=${DEPLOYER} \
         --gas-limit=50000000 \
@@ -55,7 +55,7 @@ upgrade() {
     echo "upgrading contract ${ADDRESS} to ${NETWORK_NAME} ..."
     erdpy --verbose contract upgrade ${ADDRESS} \
         --project . \
-        --arguments ${COST_TOKEN_ID_HEX} ${IMAGE_UPDATE_COST} \
+        --arguments ${COST_TOKEN_ID_HEX} ${COST_IMAGE_SET} \
         --recall-nonce \
         --pem=${DEPLOYER} \
         --gas-limit=50000000 \
@@ -85,4 +85,16 @@ addLocalBurnRole() {
 
     echo ""
     echo "local burn role added!"
+}
+
+updateImageSetCost() {
+    erdpy --verbose contract call ${ADDRESS} \
+        --recall-nonce \
+        --pem=${DEPLOYER} \
+        --gas-limit=5000000 \
+        --function="updateImageSetCost" \
+        --arguments $COST_IMAGE_SET \
+        --proxy=$PROXY \
+        --chain=$CHAIN_ID \
+        --send || return
 }
