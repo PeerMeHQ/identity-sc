@@ -4,11 +4,12 @@ DEPLOYER="./deployer.pem" # main actor pem file
 PROXY=https://testnet-gateway.elrond.com
 CHAIN_ID="T"
 
-COST_TOKEN_ID=0x # in hex
-IMAGE_UPDATE_COST=500 # in super tokens
+COST_TOKEN_ID=""
 IMAGE_UPDATE_COST=100 # in super tokens
 
 ##### - configuration end - #####
+
+COST_TOKEN_ID_HEX="0x$(echo -n ${COST_TOKEN_ID} | xxd -p -u | tr -d '\n')"
 
 ADDRESS=$(erdpy data load --partition ${NETWORK_NAME} --key=address)
 DEPLOY_TRANSACTION=$(erdpy data load --partition ${NETWORK_NAME} --key=deploy-transaction)
@@ -20,7 +21,7 @@ deploy() {
     echo "deploying to ${NETWORK_NAME} ..."
     erdpy --verbose contract deploy \
         --project . \
-        --arguments ${COST_TOKEN_ID} ${IMAGE_UPDATE_COST} \
+        --arguments ${COST_TOKEN_ID_HEX} ${IMAGE_UPDATE_COST} \
         --recall-nonce \
         --pem=${DEPLOYER} \
         --gas-limit=50000000 \
@@ -45,7 +46,7 @@ upgrade() {
     echo "upgrading contract ${ADDRESS} to ${NETWORK_NAME} ..."
     erdpy --verbose contract upgrade ${ADDRESS} \
         --project . \
-        --arguments ${COST_TOKEN_ID} ${IMAGE_UPDATE_COST} \
+        --arguments ${COST_TOKEN_ID_HEX} ${IMAGE_UPDATE_COST} \
         --recall-nonce \
         --pem=${DEPLOYER} \
         --gas-limit=50000000 \
@@ -65,7 +66,7 @@ addLocalBurnRole() {
 
     erdpy --verbose contract call erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u \
         --function=setSpecialRole \
-        --arguments ${COST_TOKEN_ID} $sc_address_hex $burn_role_hex  \
+        --arguments ${COST_TOKEN_ID_HEX} $sc_address_hex $burn_role_hex  \
         --recall-nonce \
         --pem=${DEPLOYER} \
         --gas-limit=60000000 \
