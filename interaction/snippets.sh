@@ -15,8 +15,14 @@ ADDRESS=$(erdpy data load --partition ${NETWORK_NAME} --key=address)
 DEPLOY_TRANSACTION=$(erdpy data load --partition ${NETWORK_NAME} --key=deploy-transaction)
 
 deploy() {
+    echo "accidental deploy protection is activated"
+    exit 1;
+
     echo "building contract for deployment ..."
-    erdpy --verbose contract build
+    erdpy --verbose contract build || return
+
+    echo "running tests ..."
+    erdpy --verbose contract test || return
 
     echo "deploying to ${NETWORK_NAME} ..."
     erdpy --verbose contract deploy \
@@ -41,7 +47,10 @@ deploy() {
 
 upgrade() {
     echo "building contract for upgrade ..."
-    erdpy --verbose contract build
+    erdpy --verbose contract build || return
+
+    echo "running tests ..."
+    erdpy --verbose contract test || return
 
     echo "upgrading contract ${ADDRESS} to ${NETWORK_NAME} ..."
     erdpy --verbose contract upgrade ${ADDRESS} \
