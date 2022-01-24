@@ -6,6 +6,7 @@ CHAIN_ID="T"
 
 COST_TOKEN_ID=0x # in hex
 IMAGE_UPDATE_COST=500 # in super tokens
+IMAGE_UPDATE_COST=100 # in super tokens
 
 ##### - configuration end - #####
 
