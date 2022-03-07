@@ -1,9 +1,25 @@
 {
+    "devnet": {
+        "proxy": "https://devnet-gateway.elrond.com",
+        "chain-id": "D",
+        "cost-token-id": "XSUPER-5ef129",
+        "cost-avatar-set": 50,
+        "address": "erd1qqqqqqqqqqqqqpgqha4kmsdqfj6pr3hcy39lyf47t98t7nl527rsa6a6tz",
+        "deploy-transaction": "88b797bc660c7b629a487963651cc869c1ee5d1b0a136d05716c3d0d0877407b"
+    },
     "testnet": {
-        "address": "erd1qqqqqqqqqqqqqpgqqjptfppx0kxjaeapa5e42fp0u57dnth427rsk8lqkd",
-        "deploy-transaction": "e89fe7fab8a0166526d323f23b030c3d6032354da74f76c775f2345d0364d0b8"
+        "proxy": "https://testnet-gateway.elrond.com",
+        "chain-id": "T",
+        "cost-token-id": "XSUPER-da8349",
+        "cost-avatar-set": 50,
+        "address": "erd1qqqqqqqqqqqqqpgqxuumvlqxzfaxv9x0yhwwcfnf6qr9g3mr27rstmzedu",
+        "deploy-transaction": "564979d31ff1bc3d972b82bbd542d955641634229fb7e95dd15cc576020fe44e"
     },
     "mainnet": {
+        "proxy": "https://gateway.elrond.com",
+        "chain-id": "1",
+        "cost-token-id": "SUPER-507aa6",
+        "cost-avatar-set": 50,
         "address": "erd1qqqqqqqqqqqqqpgq4kns8he9r84c58ed3jjuam3tp7u9zl4n27rsy2kv6u",
         "deploy-transaction": "2c6d587ce2c4f643d5ca57f92ce889e9cf88ea4708a25d1ea3e60701a7d0d086"
     }

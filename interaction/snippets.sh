@@ -1,100 +1,70 @@
-##### - configuration - #####
 NETWORK_NAME="testnet" # devnet, testnet, mainnet
-DEPLOYER="./deployer.pem" # main actor pem file
-PROXY=https://testnet-gateway.elrond.com
-CHAIN_ID="T"
+DEPLOYER="./deployer.pem"
 
-COST_TOKEN_ID=""
-COST_IMAGE_SET=100 # in super tokens
-
-##### - configuration end - #####
-
-COST_TOKEN_ID_HEX="0x$(echo -n ${COST_TOKEN_ID} | xxd -p -u | tr -d '\n')"
-
+PROXY=$(erdpy data load --partition ${NETWORK_NAME} --key=proxy)
+CHAIN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=chain-id)
 ADDRESS=$(erdpy data load --partition ${NETWORK_NAME} --key=address)
 DEPLOY_TRANSACTION=$(erdpy data load --partition ${NETWORK_NAME} --key=deploy-transaction)
+COST_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-token-id)
+COST_AVATAR_SET=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-avatar-set)
 
 deploy() {
-    echo "accidental deploy protection is activated"
+    echo "accidental deploy protection is active"
     exit 1;
 
-    echo "building contract for deployment ..."
     erdpy --verbose contract build || return
+    cargo test || return
 
-    echo "running tests ..."
-    erdpy --verbose contract test || return
-
-    echo "deploying to ${NETWORK_NAME} ..."
     erdpy --verbose contract deploy \
         --project . \
-        --arguments ${COST_TOKEN_ID_HEX} ${COST_IMAGE_SET} \
-        --recall-nonce \
-        --pem=${DEPLOYER} \
-        --gas-limit=50000000 \
-        --proxy=${PROXY} \
-        --chain=${CHAIN_ID} \
+        --arguments "str:$COST_TOKEN_ID" $COST_AVATAR_SET \
+        --recall-nonce --gas-limit=50000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --outfile="deploy-$NETWORK_NAME.interaction.json" \
+        --pem=$DEPLOYER \
         --send || return
 
-    TRANSACTION=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emitted_tx']['hash']")
-    ADDRESS=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emitted_tx']['address']")
+    TRANSACTION=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emittedTransactionHash']")
+    ADDRESS=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['contractAddress']")
 
-    erdpy data store --partition ${NETWORK_NAME} --key=address --value=${ADDRESS}
-    erdpy data store --partition ${NETWORK_NAME} --key=deploy-transaction --value=${TRANSACTION}
+    erdpy data store --partition $NETWORK_NAME --key=address --value=$ADDRESS
+    erdpy data store --partition $NETWORK_NAME --key=deploy-transaction --value=$TRANSACTION
+
+    sleep 6
+    setCostTokenBurnRole
 
     echo ""
-    echo "deployed smart contract address: ${ADDRESS}"
+    echo "deployed smart contract address: $ADDRESS"
 }
 
 upgrade() {
-    echo "building contract for upgrade ..."
     erdpy --verbose contract build || return
+    cargo test || return
 
-    echo "running tests ..."
-    erdpy --verbose contract test || return
-
-    echo "upgrading contract ${ADDRESS} to ${NETWORK_NAME} ..."
-    erdpy --verbose contract upgrade ${ADDRESS} \
-        --project . \
-        --arguments ${COST_TOKEN_ID_HEX} ${COST_IMAGE_SET} \
-        --recall-nonce \
-        --pem=${DEPLOYER} \
-        --gas-limit=50000000 \
-        --proxy=${PROXY} \
-        --chain=${CHAIN_ID} \
+    erdpy --verbose contract upgrade $ADDRESS --project . \
+        --arguments "str:$COST_TOKEN_ID" $COST_AVATAR_SET \
+        --recall-nonce --gas-limit=50000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --pem=$DEPLOYER \
         --send || return
-
-    echo ""
-    echo "upgraded smart contract"
 }
 
-addLocalBurnRole() {
-    echo "adding ESDTLocalBurn role for ${ADDRESS} ..."
-
-    sc_address_hex="0x$(erdpy wallet bech32 --decode ${ADDRESS})"
-    burn_role_hex="0x$(echo -n 'ESDTRoleLocalBurn' | xxd -p -u | tr -d '\n')"
-
+setCostTokenBurnRole() {
     erdpy --verbose contract call erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u \
         --function=setSpecialRole \
-        --arguments ${COST_TOKEN_ID_HEX} $sc_address_hex $burn_role_hex  \
-        --recall-nonce \
-        --pem=${DEPLOYER} \
-        --gas-limit=60000000 \
-        --proxy=${PROXY} \
-        --chain=${CHAIN_ID} \
+        --arguments "str:$COST_TOKEN_ID" $ADDRESS "str:ESDTRoleLocalBurn"  \
+        --recall-nonce --gas-limit=60000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --pem=$DEPLOYER \
         --send || return
-
-    echo ""
-    echo "local burn role added!"
 }
 
-updateImageSetCost() {
-    erdpy --verbose contract call ${ADDRESS} \
-        --recall-nonce \
-        --pem=${DEPLOYER} \
-        --gas-limit=5000000 \
-        --function="updateImageSetCost" \
-        --arguments $COST_IMAGE_SET \
-        --proxy=$PROXY \
-        --chain=$CHAIN_ID \
+updateAvatarSetCost() {
+    erdpy --verbose contract call $ADDRESS \
+        --function="updateAvatarSetCost" \
+        --arguments $COST_AVATAR_SET \
+        --recall-nonce --gas-limit=5000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --pem=$DEPLOYER \
         --send || return
 }
