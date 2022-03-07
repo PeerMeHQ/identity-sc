@@ -3,11 +3,11 @@ elrond_wasm::imports!();
 use elrond_wasm_debug::{assert_sc_error, managed_address, managed_biguint, managed_token_id, rust_biguint, testing_framework::*};
 use identity::{self, Identity};
 
-const SC_WASM_PATH: &'static str = "../output/adder.wasm";
+const SC_WASM_PATH: &'static str = "../output/identity.wasm";
 const COST_TOKEN_ID: &[u8] = b"COST-abcdef";
 
 #[test]
-fn it_stores_nft_as_image() {
+fn it_stores_an_avatar() {
     let mut blockchain = BlockchainStateWrapper::new();
     let caller = blockchain.create_user_account(&rust_biguint!(1_000));
     let contract = blockchain.create_sc_account(&rust_biguint!(0), None, identity::contract_obj, SC_WASM_PATH);
