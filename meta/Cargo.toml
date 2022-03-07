@@ -1,6 +1,6 @@
 [package]
 name = "identity-meta"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Micha Vie <micha@freeiam.com>", "Superciety <hello@superciety.com>"]
 edition = "2018"
 publish = false
@@ -9,7 +9,7 @@ publish = false
 path = ".."
 
 [dependencies.elrond-wasm]
-version = "0.24.0"
+version = "0.29.3"
 
 [dependencies.elrond-wasm-debug]
-version = "0.24.0"
+version = "0.29.3"
