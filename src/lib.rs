@@ -44,8 +44,8 @@ pub trait Identity {
         self.cost_avatar_set().set(&cost);
     }
 
-    #[view(getAvatarNftIdByAddress)]
-    fn get_avatar_nft_id(&self, address: ManagedAddress) -> OptionalValue<MultiValue2<TokenIdentifier, u64>> {
+    #[view(getAvatar)]
+    fn get_avatar_view(&self, address: ManagedAddress) -> OptionalValue<MultiValue2<TokenIdentifier, u64>> {
         if self.avatars(&address).is_empty() {
             OptionalValue::None
         } else {

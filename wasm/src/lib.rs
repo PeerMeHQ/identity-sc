@@ -7,7 +7,7 @@
 elrond_wasm_node::wasm_endpoints! {
     identity
     (
-        getAvatarNftIdByAddress
+        getAvatar
         setAvatar
         updateAvatarSetCost
     )
