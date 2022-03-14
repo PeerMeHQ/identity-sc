@@ -10,10 +10,10 @@
     "testnet": {
         "proxy": "https://testnet-gateway.elrond.com",
         "chain-id": "T",
-        "cost-token-id": "XSUPER-da8349",
+        "cost-token-id": "XSUPER-0ad9d6",
         "cost-avatar-set": 50,
-        "address": "erd1qqqqqqqqqqqqqpgqxuumvlqxzfaxv9x0yhwwcfnf6qr9g3mr27rstmzedu",
-        "deploy-transaction": "564979d31ff1bc3d972b82bbd542d955641634229fb7e95dd15cc576020fe44e"
+        "address": "erd1qqqqqqqqqqqqqpgqw3v88rdpsdegr4c36rgtvcjr00eeajxh27rs5p6774",
+        "deploy-transaction": "5f8bca40604ae355c1d135536d139e329ed12660e5cacede4be7289fbb46f957"
     },
     "mainnet": {
         "proxy": "https://gateway.elrond.com",
