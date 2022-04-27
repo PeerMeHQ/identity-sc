@@ -1,5 +1,4 @@
-NETWORK_NAME="testnet" # devnet, testnet, mainnet
-DEPLOYER="./deployer.pem"
+NETWORK_NAME="devnet" # devnet, testnet, mainnet
 
 PROXY=$(erdpy data load --partition ${NETWORK_NAME} --key=proxy)
 CHAIN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=chain-id)
@@ -21,7 +20,7 @@ deploy() {
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --outfile="deploy-$NETWORK_NAME.interaction.json" \
-        --pem=$DEPLOYER \
+        --ledger \
         --send || return
 
     TRANSACTION=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emittedTransactionHash']")
@@ -45,7 +44,7 @@ upgrade() {
         --arguments "str:$COST_TOKEN_ID" $COST_AVATAR_SET \
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
-        --pem=$DEPLOYER \
+        --ledger \
         --send || return
 }
 
@@ -55,7 +54,7 @@ setCostTokenBurnRole() {
         --arguments "str:$COST_TOKEN_ID" $ADDRESS "str:ESDTRoleLocalBurn"  \
         --recall-nonce --gas-limit=60000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
-        --pem=$DEPLOYER \
+        --ledger \
         --send || return
 }
 
@@ -65,6 +64,15 @@ updateAvatarSetCost() {
         --arguments $COST_AVATAR_SET \
         --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
-        --pem=$DEPLOYER \
+        --ledger \
         --send || return
+}
+
+# params:
+#   $1 = address
+getAvatar() {
+    erdpy contract query $ADDRESS \
+        --function="getAvatar" \
+        --arguments $1 \
+        --proxy=$PROXY || return
 }
