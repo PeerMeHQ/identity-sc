@@ -2,10 +2,10 @@
     "devnet": {
         "proxy": "https://devnet-gateway.elrond.com",
         "chain-id": "D",
-        "cost-token-id": "XSUPER-5ef129",
+        "cost-token-id": "DSUPER-9af8df",
         "cost-avatar-set": 50,
-        "address": "erd1qqqqqqqqqqqqqpgqha4kmsdqfj6pr3hcy39lyf47t98t7nl527rsa6a6tz",
-        "deploy-transaction": "88b797bc660c7b629a487963651cc869c1ee5d1b0a136d05716c3d0d0877407b"
+        "address": "erd1qqqqqqqqqqqqqpgq9zf2kf84a49n9m529q86yr3j05k32sxn27rsewadxf",
+        "deploy-transaction": "a354dcf41a23cffdb984c69bd2a2a3acb012f7546a0e4d80134adf37c1680663"
     },
     "testnet": {
         "proxy": "https://testnet-gateway.elrond.com",
