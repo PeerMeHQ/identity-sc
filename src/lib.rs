@@ -34,8 +34,6 @@ pub trait Identity {
             token_id: nft_id,
             nonce: nft_nonce,
         });
-
-        // self.burn_cost_tokens(&cost_token_id, &cost_amount);
     }
 
     #[only_owner]
@@ -54,11 +52,6 @@ pub trait Identity {
         }
     }
 
-    // fn burn_cost_tokens(&self, token_id: &TokenIdentifier, amount: &BigUint) {
-    //     self.send().esdt_local_burn(&token_id, 0, &amount);
-    //     self.burned_tokens().update(|current| *current += amount);
-    // }
-
     #[storage_mapper("cost_token_id")]
     fn cost_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
@@ -67,7 +60,4 @@ pub trait Identity {
 
     #[storage_mapper("avatars")]
     fn avatars(&self, address: &ManagedAddress) -> SingleValueMapper<Avatar<Self::Api>>;
-
-    #[storage_mapper("burned_tokens")]
-    fn burned_tokens(&self) -> SingleValueMapper<BigUint>;
 }
