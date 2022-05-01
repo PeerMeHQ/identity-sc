@@ -20,6 +20,7 @@ deploy() {
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --outfile="deploy-$NETWORK_NAME.interaction.json" \
+        --metadata-payable-by-sc \
         --ledger \
         --send || return
 
@@ -44,6 +45,7 @@ upgrade() {
         --arguments "str:$COST_TOKEN_ID" $COST_AVATAR_SET \
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
+        --metadata-payable-by-sc \
         --ledger \
         --send || return
 }
