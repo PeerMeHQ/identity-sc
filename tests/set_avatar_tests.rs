@@ -1,6 +1,7 @@
 elrond_wasm::imports!();
 
-use elrond_wasm_debug::{assert_sc_error, managed_address, managed_biguint, managed_token_id, rust_biguint, testing_framework::*};
+use elrond_wasm_debug::testing_framework::*;
+use elrond_wasm_debug::*;
 use identity::{self, Identity};
 
 const SC_WASM_PATH: &'static str = "../output/identity.wasm";
@@ -100,15 +101,13 @@ fn it_fails_when_paid_amount_is_less_than_cost_amount() {
 
     blockchain.set_esdt_balance(&caller, COST_TOKEN_ID, &rust_biguint!(1_000));
 
-    blockchain.execute_esdt_transfer(&caller, &contract, COST_TOKEN_ID, 0, &rust_biguint!(100), |sc| {
-        let cost_token = managed_token_id!(COST_TOKEN_ID);
+    blockchain
+        .execute_esdt_transfer(&caller, &contract, COST_TOKEN_ID, 0, &rust_biguint!(100), |sc| {
+            let cost_token = managed_token_id!(COST_TOKEN_ID);
 
-        sc.init(cost_token.clone(), managed_biguint!(100));
+            sc.init(cost_token.clone(), managed_biguint!(100));
 
-        let result = sc.set_image(cost_token, managed_biguint!(90), managed_token_id!(b"TEST-123456"), 0);
-
-        assert_sc_error!(result, b"invalid amount");
-
-        StateChange::Commit
-    });
+            sc.set_image(cost_token, managed_biguint!(90), managed_token_id!(b"TEST-123456"), 0);
+        })
+        .assert_user_error("invalid amount");
 }
