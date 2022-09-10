@@ -3,6 +3,9 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
+mod earn;
+mod stake;
+
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
     pub token_id: TokenIdentifier<M>,
@@ -10,7 +13,7 @@ pub struct Avatar<M: ManagedTypeApi> {
 }
 
 #[elrond_wasm::contract]
-pub trait Identity {
+pub trait Identity: stake::StakeModule + earn::EarnModule {
     #[init]
     fn init(&self, cost_token: TokenIdentifier, image_update_cost: BigUint) {
         self.cost_token_id().set_if_empty(&cost_token);
