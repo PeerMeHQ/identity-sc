@@ -23,15 +23,15 @@ pub trait Identity {
         &self,
         #[payment_token] cost_token_id: TokenIdentifier,
         #[payment_amount] cost_amount: BigUint,
-        nft_id: TokenIdentifier,
+        nft_collection: TokenIdentifier,
         nft_nonce: u64,
     ) {
-        require!(nft_id.is_valid_esdt_identifier(), "not an nft");
+        require!(nft_collection.is_valid_esdt_identifier(), "not a valid token");
         require!(cost_token_id == self.cost_token_id().get(), "invalid token");
         require!(cost_amount >= self.cost_avatar_set().get(), "invalid amount");
 
         self.avatars(&self.blockchain().get_caller()).set(&Avatar {
-            token_id: nft_id,
+            token_id: nft_collection,
             nonce: nft_nonce,
         });
     }
