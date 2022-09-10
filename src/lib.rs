@@ -22,16 +22,12 @@ pub trait Identity: stake::StakeModule + earn::EarnModule {
 
     #[payable("*")]
     #[endpoint(setAvatar)]
-    fn set_avatar_endpoint(
-        &self,
-        #[payment_token] cost_token_id: TokenIdentifier,
-        #[payment_amount] cost_amount: BigUint,
-        nft_collection: TokenIdentifier,
-        nft_nonce: u64,
-    ) {
+    fn set_avatar_endpoint(&self, nft_collection: TokenIdentifier, nft_nonce: u64) {
+        let payment = self.call_value().single_esdt();
+
         require!(nft_collection.is_valid_esdt_identifier(), "not a valid token");
-        require!(cost_token_id == self.cost_token_id().get(), "invalid token");
-        require!(cost_amount >= self.cost_avatar_set().get(), "invalid amount");
+        require!(payment.token_identifier == self.cost_token_id().get(), "invalid token");
+        require!(payment.amount >= self.cost_avatar_set().get(), "invalid amount");
 
         self.avatars(&self.blockchain().get_caller()).set(&Avatar {
             token_id: nft_collection,
