@@ -70,6 +70,13 @@ updateAvatarSetCost() {
         --send || return
 }
 
+getAvatarSetCost() {
+    erdpy contract query $ADDRESS \
+        --function="getAvatarSetCost" \
+        --arguments $1 \
+        --proxy=$PROXY || return
+}
+
 # params:
 #   $1 = address
 getAvatar() {

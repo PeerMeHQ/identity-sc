@@ -55,6 +55,7 @@ pub trait Identity {
     #[storage_mapper("cost_token_id")]
     fn cost_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
 
+    #[view(getAvatarSetCost)]
     #[storage_mapper("cost_avatar_set")]
     fn cost_avatar_set(&self) -> SingleValueMapper<BigUint>;
 
