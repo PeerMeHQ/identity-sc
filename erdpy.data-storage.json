@@ -1,26 +1,29 @@
 {
-    "devnet": {
-        "proxy": "https://devnet-gateway.elrond.com",
-        "chain-id": "D",
-        "cost-token-id": "DSUPER-9af8df",
-        "cost-avatar-set": 50,
-        "address": "erd1qqqqqqqqqqqqqpgq9zf2kf84a49n9m529q86yr3j05k32sxn27rsewadxf",
-        "deploy-transaction": "a354dcf41a23cffdb984c69bd2a2a3acb012f7546a0e4d80134adf37c1680663"
-    },
-    "testnet": {
-        "proxy": "https://testnet-gateway.elrond.com",
-        "chain-id": "T",
-        "cost-token-id": "XSUPER-c19331",
-        "cost-avatar-set": 50,
-        "address": "erd1qqqqqqqqqqqqqpgqw3v88rdpsdegr4c36rgtvcjr00eeajxh27rs5p6774",
-        "deploy-transaction": "00679be244fa0ad4fb83800dbb95db175e0ed66018822533d8f09dff658cc09b"
-    },
-    "mainnet": {
-        "proxy": "https://gateway.elrond.com",
-        "chain-id": "1",
-        "cost-token-id": "SUPER-507aa6",
-        "cost-avatar-set": 50,
-        "address": "erd1qqqqqqqqqqqqqpgq4kns8he9r84c58ed3jjuam3tp7u9zl4n27rsy2kv6u",
-        "deploy-transaction": "2c6d587ce2c4f643d5ca57f92ce889e9cf88ea4708a25d1ea3e60701a7d0d086"
-    }
+  "devnet": {
+    "proxy": "https://devnet-gateway.elrond.com",
+    "chain-id": "D",
+    "core-token-id": "DSUPER-9af8df",
+    "cost-avatar-set": 50,
+    "earn-core-stake-token-id": "SUPERPOWER-46a488",
+    "address": "erd1qqqqqqqqqqqqqpgq9zf2kf84a49n9m529q86yr3j05k32sxn27rsewadxf",
+    "deploy-transaction": "a354dcf41a23cffdb984c69bd2a2a3acb012f7546a0e4d80134adf37c1680663"
+  },
+  "testnet": {
+    "proxy": "https://testnet-gateway.elrond.com",
+    "chain-id": "T",
+    "core-token-id": "XSUPER-c19331",
+    "cost-avatar-set": 50,
+    "earn-core-stake-token-id": "",
+    "address": "erd1qqqqqqqqqqqqqpgqw3v88rdpsdegr4c36rgtvcjr00eeajxh27rs5p6774",
+    "deploy-transaction": "00679be244fa0ad4fb83800dbb95db175e0ed66018822533d8f09dff658cc09b"
+  },
+  "mainnet": {
+    "proxy": "https://gateway.elrond.com",
+    "chain-id": "1",
+    "core-token-id": "SUPER-507aa6",
+    "cost-avatar-set": 50,
+    "earn-core-stake-token-id": "",
+    "address": "erd1qqqqqqqqqqqqqpgq4kns8he9r84c58ed3jjuam3tp7u9zl4n27rsy2kv6u",
+    "deploy-transaction": "2c6d587ce2c4f643d5ca57f92ce889e9cf88ea4708a25d1ea3e60701a7d0d086"
+  }
 }

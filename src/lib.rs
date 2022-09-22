@@ -4,7 +4,7 @@ elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
 mod earn;
-mod stake;
+mod config;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
@@ -13,7 +13,7 @@ pub struct Avatar<M: ManagedTypeApi> {
 }
 
 #[elrond_wasm::contract]
-pub trait Identity: stake::StakeModule + earn::EarnModule {
+pub trait Identity: config::ConfigModule + earn::EarnModule {
     #[init]
     fn init(&self, cost_token: TokenIdentifier, image_update_cost: BigUint) {
         self.cost_token_id().set_if_empty(&cost_token);
@@ -50,13 +50,6 @@ pub trait Identity: stake::StakeModule + earn::EarnModule {
             OptionalValue::Some((nft.token_id, nft.nonce).into())
         }
     }
-
-    #[storage_mapper("cost_token_id")]
-    fn cost_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
-
-    #[view(getAvatarSetCost)]
-    #[storage_mapper("cost_avatar_set")]
-    fn cost_avatar_set(&self) -> SingleValueMapper<BigUint>;
 
     #[storage_mapper("avatars")]
     fn avatars(&self, address: &ManagedAddress) -> SingleValueMapper<Avatar<Self::Api>>;

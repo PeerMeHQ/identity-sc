@@ -4,8 +4,9 @@ PROXY=$(erdpy data load --partition ${NETWORK_NAME} --key=proxy)
 CHAIN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=chain-id)
 ADDRESS=$(erdpy data load --partition ${NETWORK_NAME} --key=address)
 DEPLOY_TRANSACTION=$(erdpy data load --partition ${NETWORK_NAME} --key=deploy-transaction)
-COST_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-token-id)
+CORE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=core-token-id)
 COST_AVATAR_SET=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-avatar-set)
+EARN_CORE_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-core-stake-token-id)
 
 deploy() {
     echo "accidental deploy protection is active"
@@ -16,7 +17,7 @@ deploy() {
 
     erdpy --verbose contract deploy \
         --project . \
-        --arguments "str:$COST_TOKEN_ID" $COST_AVATAR_SET \
+        --arguments "str:$CORE_TOKEN_ID" $COST_AVATAR_SET \
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --outfile="deploy-$NETWORK_NAME.interaction.json" \
@@ -33,16 +34,20 @@ deploy() {
     sleep 6
     setCostTokenBurnRole
 
+    sleep 6
+    initEarnModule
+
     echo ""
     echo "deployed smart contract address: $ADDRESS"
 }
 
 upgrade() {
+    erdpy --verbose contract clean || return
     erdpy --verbose contract build || return
-    cargo test || return
+    # cargo test || return
 
     erdpy --verbose contract upgrade $ADDRESS --project . \
-        --arguments "str:$COST_TOKEN_ID" $COST_AVATAR_SET \
+        --arguments "str:$CORE_TOKEN_ID" $COST_AVATAR_SET \
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --metadata-payable-by-sc \
@@ -50,11 +55,11 @@ upgrade() {
         --send || return
 }
 
-setCostTokenBurnRole() {
-    erdpy --verbose contract call erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u \
-        --function=setSpecialRole \
-        --arguments "str:$COST_TOKEN_ID" $ADDRESS "str:ESDTRoleLocalBurn"  \
-        --recall-nonce --gas-limit=60000000 \
+initEarnModule() {
+    erdpy --verbose contract call $MANAGER_ADDRESS \
+        --function="initEarnModule" \
+        --arguments "str:$EARN_CORE_STAKE_TOKEN_ID" \
+        --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --ledger \
         --send || return
@@ -82,6 +87,39 @@ getAvatarSetCost() {
 getAvatar() {
     erdpy contract query $ADDRESS \
         --function="getAvatar" \
+        --arguments $1 \
+        --proxy=$PROXY || return
+}
+
+# params:
+#   $1 = amount
+distributeForEarn() {
+    erdpy --verbose contract call $ADDRESS \
+        --function="ESDTTransfer" \
+        --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeProfits" \
+        --recall-nonce --gas-limit=5000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --ledger \
+        --send || return
+}
+
+# params:
+#   $1 = amount
+stakeForEarn() {
+    erdpy --verbose contract call $ADDRESS \
+        --function="ESDTTransfer" \
+        --arguments "str:$EARN_STAKE_TOKEN_ID" $1 "str:stakeForEarn" \
+        --recall-nonce --gas-limit=5000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --ledger \
+        --send || return
+}
+
+# params:
+#   $1 = address
+getEarnerInfo() {
+    erdpy contract query $ADDRESS \
+        --function="getEarnerInfo" \
         --arguments $1 \
         --proxy=$PROXY || return
 }
