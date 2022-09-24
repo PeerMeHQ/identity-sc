@@ -7,7 +7,9 @@
 elrond_wasm_node::wasm_endpoints! {
     identity
     (
-        distributeProfits
+        claimEarnRewards
+        distributeForCoreEarn
+        distributeForLpEarn
         getAvatar
         getAvatarSetCost
         getEarnerInfo

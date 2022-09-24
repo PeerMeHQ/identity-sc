@@ -7,6 +7,7 @@ DEPLOY_TRANSACTION=$(erdpy data load --partition ${NETWORK_NAME} --key=deploy-tr
 CORE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=core-token-id)
 COST_AVATAR_SET=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-avatar-set)
 EARN_CORE_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-core-stake-token-id)
+EARN_LP_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-lp-stake-token-id)
 
 deploy() {
     echo "accidental deploy protection is active"
@@ -56,9 +57,9 @@ upgrade() {
 }
 
 initEarnModule() {
-    erdpy --verbose contract call $MANAGER_ADDRESS \
+    erdpy --verbose contract call $ADDRESS \
         --function="initEarnModule" \
-        --arguments "str:$EARN_CORE_STAKE_TOKEN_ID" \
+        --arguments "str:$EARN_CORE_STAKE_TOKEN_ID" "str:$EARN_LP_STAKE_TOKEN_ID" \
         --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --ledger \
@@ -93,10 +94,10 @@ getAvatar() {
 
 # params:
 #   $1 = amount
-distributeForEarn() {
+distributeForCoreEarn() {
     erdpy --verbose contract call $ADDRESS \
         --function="ESDTTransfer" \
-        --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeProfits" \
+        --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeForCoreEarn" \
         --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --ledger \

@@ -3,8 +3,8 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-mod earn;
 mod config;
+mod earn;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
@@ -16,7 +16,7 @@ pub struct Avatar<M: ManagedTypeApi> {
 pub trait Identity: config::ConfigModule + earn::EarnModule {
     #[init]
     fn init(&self, cost_token: TokenIdentifier, image_update_cost: BigUint) {
-        self.cost_token_id().set_if_empty(&cost_token);
+        self.core_token_id().set_if_empty(&cost_token);
         self.cost_avatar_set().set_if_empty(&image_update_cost);
     }
 
@@ -26,7 +26,7 @@ pub trait Identity: config::ConfigModule + earn::EarnModule {
         let payment = self.call_value().single_esdt();
 
         require!(nft_collection.is_valid_esdt_identifier(), "not a valid token");
-        require!(payment.token_identifier == self.cost_token_id().get(), "invalid token");
+        require!(payment.token_identifier == self.core_token_id().get(), "invalid token");
         require!(payment.amount >= self.cost_avatar_set().get(), "invalid amount");
 
         self.avatars(&self.blockchain().get_caller()).set(&Avatar {
