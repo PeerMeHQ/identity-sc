@@ -17,7 +17,7 @@ pub trait EarnModule: config::ConfigModule {
     #[endpoint(distributeForCoreEarn)]
     fn distribute_for_core_earn_endpoint(&self) {
         let payment = self.call_value().single_esdt();
-        let core_token = self.core_token_id().get();
+        let core_token = self.core_token().get();
         let core_stake_total = self.core_stake_total().get();
 
         require!(payment.amount > 0, "invalid amount");
@@ -32,15 +32,15 @@ pub trait EarnModule: config::ConfigModule {
     #[endpoint(distributeForLpEarn)]
     fn distribute_for_lp_earn_endpoint(&self) {
         let payment = self.call_value().single_esdt();
-        let core_token = self.core_token_id().get();
-        let core_stake_total = self.core_stake_total().get();
+        let core_token = self.core_token().get();
+        let lp_stake_total = self.lp_stake_total().get();
 
         require!(payment.amount > 0, "invalid amount");
         require!(payment.token_identifier == core_token, "invalid token");
-        require!(core_stake_total >= 0, "total stake must be more than 0");
+        require!(lp_stake_total >= 0, "total stake must be more than 0");
 
-        self.core_reward_per_token()
-            .update(|current| *current += payment.amount.clone() * BigUint::from(10u64).pow(PRECISION) / core_stake_total);
+        self.lp_reward_per_token()
+            .update(|current| *current += payment.amount.clone() * BigUint::from(10u64).pow(PRECISION) / lp_stake_total);
     }
 
     #[payable("*")]
@@ -48,14 +48,20 @@ pub trait EarnModule: config::ConfigModule {
     fn stake_for_earn_endpoint(&self) {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
-        let core_stake_token = self.core_stake_token().get();
 
-        // TODO: check if is correct token, or do if statements
-
-        let rpt = self.core_reward_per_token().get();
-        self.core_stake(&caller).update(|current| *current += payment.amount.clone());
-        self.core_reward_tally(&caller).update(|current| *current += rpt * payment.amount.clone());
-        self.core_stake_total().update(|current| *current += payment.amount);
+        if payment.token_identifier == self.core_stake_token().get() {
+            let rpt = self.core_reward_per_token().get();
+            self.core_stake(&caller).update(|current| *current += payment.amount.clone());
+            self.core_reward_tally(&caller).update(|current| *current += rpt * payment.amount.clone());
+            self.core_stake_total().update(|current| *current += payment.amount);
+        } else if payment.token_identifier == self.lp_stake_token().get() {
+            let rpt = self.lp_reward_per_token().get();
+            self.lp_stake(&caller).update(|current| *current += payment.amount.clone());
+            self.lp_reward_tally(&caller).update(|current| *current += rpt * payment.amount.clone());
+            self.lp_stake_total().update(|current| *current += payment.amount);
+        } else {
+            sc_panic!("invalid stake token");
+        }
     }
 
     #[endpoint(unstakeFromEarn)]
@@ -89,7 +95,7 @@ pub trait EarnModule: config::ConfigModule {
         let lp_rpt = self.lp_reward_per_token().get();
         self.lp_reward_tally(&caller).set(lp_stake * lp_rpt);
 
-        let core_token = self.core_token_id().get();
+        let core_token = self.core_token().get();
         self.send().direct_esdt(&caller, &core_token, 0, &reward_total);
     }
 
