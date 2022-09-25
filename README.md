@@ -33,4 +33,4 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## License
 
-The GNU GENERAL PUBLIC LICENSE v3.0. Please see [License File](LICENSE.md) for more information.
+The GNU GENERAL PUBLIC LICENSE v3.0. Please see [License File](LICENSE) for more information.
