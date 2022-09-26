@@ -64,8 +64,8 @@ pub trait EarnModule: config::ConfigModule {
         }
     }
 
-    #[endpoint(unstakeFromEarn)]
-    fn unstake_from_earn_endpoint(&self, token: TokenIdentifier) {
+    #[endpoint(withdrawFromEarn)]
+    fn withdraw_from_earn_endpoint(&self, token: TokenIdentifier) {
         let caller = self.blockchain().get_caller();
 
         // TODO check time locked
