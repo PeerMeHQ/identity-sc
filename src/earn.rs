@@ -65,21 +65,30 @@ pub trait EarnModule: config::ConfigModule {
     }
 
     #[endpoint(unstakeFromEarn)]
-    fn unstake_from_earn_endpoint(&self) {
-        // TODO check time locked
+    fn unstake_from_earn_endpoint(&self, token: TokenIdentifier) {
         let caller = self.blockchain().get_caller();
-        let core_stake_token = self.core_stake_token().get();
-        let core_stake = self.core_stake(&caller).get();
-        let core_rpt = self.core_reward_per_token().get();
 
-        require!(core_stake > 0, "no stake by user");
+        // TODO check time locked
 
-        self.core_stake(&caller).clear();
-        self.core_stake_total().update(|current| *current -= core_stake.clone());
-        self.core_reward_tally(&caller)
-            .update(|current| *current -= core_rpt * core_stake.clone());
-
-        self.send().direct_esdt(&caller, &core_stake_token, 0, &core_stake);
+        if token == self.core_stake_token().get() {
+            let core_stake = self.core_stake(&caller).get();
+            let core_rpt = self.core_reward_per_token().get();
+            require!(core_stake > 0, "no stake by user");
+            self.core_stake(&caller).clear();
+            self.core_stake_total().update(|current| *current -= core_stake.clone());
+            self.core_reward_tally(&caller).update(|current| *current -= core_rpt * core_stake.clone());
+            self.send().direct_esdt(&caller, &token, 0, &core_stake);
+        } else if token == self.lp_stake_token().get() {
+            let lp_stake = self.lp_stake(&caller).get();
+            let lp_rpt = self.lp_reward_per_token().get();
+            require!(lp_stake > 0, "no stake by user");
+            self.lp_stake(&caller).clear();
+            self.lp_stake_total().update(|current| *current -= lp_stake.clone());
+            self.lp_reward_tally(&caller).update(|current| *current -= lp_rpt * lp_stake.clone());
+            self.send().direct_esdt(&caller, &token, 0, &lp_stake);
+        } else {
+            sc_panic!("invalid token");
+        }
     }
 
     #[endpoint(claimEarnRewards)]
@@ -122,35 +131,35 @@ pub trait EarnModule: config::ConfigModule {
         (core_reward + lp_reward) / BigUint::from(10u64).pow(PRECISION)
     }
 
-    #[storage_mapper("earn:core_stake_token")]
+    #[storage_mapper("earn:core_stake_token-1")]
     fn core_stake_token(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[storage_mapper("earn:core_stake_total")]
+    #[storage_mapper("earn:core_stake_total-1")]
     fn core_stake_total(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:core_stake")]
+    #[storage_mapper("earn:core_stake-1")]
     fn core_stake(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:core_reward_per_token")]
+    #[storage_mapper("earn:core_reward_per_token-1")]
     fn core_reward_per_token(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:core_reward_tally")]
+    #[storage_mapper("earn:core_reward_tally-1")]
     fn core_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
 
     // --
 
-    #[storage_mapper("earn:lp_stake_token")]
+    #[storage_mapper("earn:lp_stake_token-1")]
     fn lp_stake_token(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[storage_mapper("earn:lp_stake_total")]
+    #[storage_mapper("earn:lp_stake_total-1")]
     fn lp_stake_total(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:lp_stake")]
+    #[storage_mapper("earn:lp_stake-1")]
     fn lp_stake(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:lp_reward_per_token")]
+    #[storage_mapper("earn:lp_reward_per_token-1")]
     fn lp_reward_per_token(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:lp_reward_tally")]
+    #[storage_mapper("earn:lp_reward_tally-1")]
     fn lp_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
 }
