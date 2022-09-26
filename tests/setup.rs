@@ -3,6 +3,7 @@ elrond_wasm::imports!();
 use elrond_wasm_debug::testing_framework::*;
 use elrond_wasm_debug::*;
 use identity::config::*;
+use identity::earn::EarnModule;
 use identity::*;
 
 pub const CORE_TOKEN_ID: &[u8] = b"SUPER-abcdef";
@@ -37,6 +38,7 @@ where
     blockchain
         .execute_tx(&owner_address, &contract, &rust_zero, |sc| {
             sc.init(managed_token_id!(CORE_TOKEN_ID), managed_biguint!(100));
+            sc.init_earn_module_endpoint(managed_token_id!(EARN_STAKE_CORE_TOKEN_ID), managed_token_id!(EARN_STAKE_LP_TOKEN_ID));
         })
         .assert_ok();
 

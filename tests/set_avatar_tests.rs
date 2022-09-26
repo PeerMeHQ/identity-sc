@@ -17,8 +17,6 @@ fn it_stores_an_avatar() {
     setup
         .blockchain
         .execute_esdt_transfer(&setup.user_address, &setup.contract, CORE_TOKEN_ID, 0, &rust_biguint!(100), |sc| {
-            sc.init(managed_token_id!(CORE_TOKEN_ID), managed_biguint!(100));
-
             sc.set_avatar_endpoint(managed_token_id!(b"COL-123456"), 2);
         })
         .assert_ok();
@@ -43,8 +41,6 @@ fn it_fails_when_paid_with_wrong_cost_token() {
     setup
         .blockchain
         .execute_esdt_transfer(&user_address, &setup.contract, CORE_TOKEN_ID, 0, &rust_biguint!(100), |sc| {
-            sc.init(managed_token_id!(CORE_TOKEN_ID), managed_biguint!(100));
-
             sc.set_avatar_endpoint(managed_token_id!(b"TEST-123456"), 0);
         })
         .assert_ok();
@@ -59,7 +55,7 @@ fn it_fails_when_paid_amount_is_less_than_cost_amount() {
 
     setup
         .blockchain
-        .execute_esdt_transfer(&user_address, &setup.contract, CORE_TOKEN_ID, 0, &rust_biguint!(100), |sc| {
+        .execute_esdt_transfer(&user_address, &setup.contract, CORE_TOKEN_ID, 0, &rust_biguint!(25), |sc| {
             sc.cost_avatar_set().set(managed_biguint!(200));
 
             sc.set_avatar_endpoint(managed_token_id!(b"TEST-123456"), 0);
