@@ -3,8 +3,8 @@
 elrond_wasm::imports!();
 elrond_wasm::derive_imports!();
 
-mod config;
-mod earn;
+pub mod config;
+pub mod earn;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
