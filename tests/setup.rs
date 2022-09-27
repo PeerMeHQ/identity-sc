@@ -36,6 +36,7 @@ where
 
     blockchain.set_esdt_balance(&owner_address, CORE_TOKEN_ID, &rust_biguint!(10_000));
 
+    blockchain.set_esdt_balance(&user_address, CORE_TOKEN_ID, &rust_biguint!(10_000));
     blockchain.set_esdt_balance(&user_address, EARN_STAKE_CORE_TOKEN_ID, &rust_biguint!(1_000));
     blockchain.set_esdt_balance(&user_address, EARN_STAKE_LP_TOKEN_ID, &rust_biguint!(1_000));
 
