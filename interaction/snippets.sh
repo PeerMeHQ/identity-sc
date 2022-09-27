@@ -34,9 +34,6 @@ deploy() {
     erdpy data store --partition $NETWORK_NAME --key=deploy-transaction --value=$TRANSACTION
 
     sleep 6
-    setCostTokenBurnRole
-
-    sleep 6
     initEarnModule
 
     echo ""
