@@ -9,6 +9,7 @@ use identity::*;
 pub const CORE_TOKEN_ID: &[u8] = b"SUPER-abcdef";
 pub const EARN_STAKE_CORE_TOKEN_ID: &[u8] = b"SUPERPOWER-abcdef";
 pub const EARN_STAKE_LP_TOKEN_ID: &[u8] = b"SUPEREGLD-abcdef";
+pub const EARN_STAKE_LOCK_TIME_SECONDS: u64 = 60 * 60 * 24 * 7;
 
 pub const WASM_PATH: &'static str = "output/identity.wasm";
 
@@ -38,7 +39,12 @@ where
     blockchain
         .execute_tx(&owner_address, &contract, &rust_zero, |sc| {
             sc.init(managed_token_id!(CORE_TOKEN_ID), managed_biguint!(100));
-            sc.init_earn_module_endpoint(managed_token_id!(EARN_STAKE_CORE_TOKEN_ID), managed_token_id!(EARN_STAKE_LP_TOKEN_ID));
+
+            sc.init_earn_module_endpoint(
+                managed_token_id!(EARN_STAKE_CORE_TOKEN_ID),
+                managed_token_id!(EARN_STAKE_LP_TOKEN_ID),
+                EARN_STAKE_LOCK_TIME_SECONDS,
+            );
         })
         .assert_ok();
 

@@ -23,7 +23,7 @@ fn it_unstakes_lp_stake_tokens() {
     setup
         .blockchain
         .execute_tx(&user_address, &setup.contract, &rust_biguint!(0), |sc| {
-            sc.withdraw_from_earn_endpoint(managed_token_id!(EARN_STAKE_LP_TOKEN_ID));
+            sc.withdraw_from_earn_endpoint(managed_token_id!(EARN_STAKE_LP_TOKEN_ID), managed_biguint!(500));
 
             assert_eq!(sc.lp_stake(&managed_address!(&user_address)).get(), managed_biguint!(0));
             assert_eq!(sc.lp_stake_total().get(), managed_biguint!(0));

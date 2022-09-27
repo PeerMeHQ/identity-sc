@@ -8,9 +8,10 @@ const PRECISION: u32 = 18;
 pub trait EarnModule: config::ConfigModule {
     #[only_owner]
     #[endpoint(initEarnModule)]
-    fn init_earn_module_endpoint(&self, core_stake_token: TokenIdentifier, lp_stake_token: TokenIdentifier) {
+    fn init_earn_module_endpoint(&self, core_stake_token: TokenIdentifier, lp_stake_token: TokenIdentifier, lock_time_seconds: u64) {
         self.core_stake_token().set(core_stake_token);
         self.lp_stake_token().set(lp_stake_token);
+        self.lock_time_seconds().set(lock_time_seconds);
     }
 
     #[payable("*")]
@@ -49,6 +50,8 @@ pub trait EarnModule: config::ConfigModule {
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
 
+        self.lock_stake_for(&caller);
+
         if payment.token_identifier == self.core_stake_token().get() {
             let rpt = self.core_reward_per_token().get();
             self.core_stake(&caller).update(|current| *current += payment.amount.clone());
@@ -65,27 +68,28 @@ pub trait EarnModule: config::ConfigModule {
     }
 
     #[endpoint(withdrawFromEarn)]
-    fn withdraw_from_earn_endpoint(&self, token: TokenIdentifier) {
+    fn withdraw_from_earn_endpoint(&self, token: TokenIdentifier, amount: BigUint) {
         let caller = self.blockchain().get_caller();
-
-        // TODO check time locked
+        self.require_stake_unlocked_for(&caller);
 
         if token == self.core_stake_token().get() {
-            let core_stake = self.core_stake(&caller).get();
-            let core_rpt = self.core_reward_per_token().get();
-            require!(core_stake > 0, "no stake by user");
-            self.core_stake(&caller).clear();
-            self.core_stake_total().update(|current| *current -= core_stake.clone());
-            self.core_reward_tally(&caller).update(|current| *current -= core_rpt * core_stake.clone());
-            self.send().direct_esdt(&caller, &token, 0, &core_stake);
+            let stake = self.core_stake(&caller).get();
+            let rpt = self.core_reward_per_token().get();
+            require!(stake > 0, "no stake by user");
+            require!(amount <= stake, "invalid amount");
+            self.core_stake(&caller).update(|current| *current -= amount.clone());
+            self.core_stake_total().update(|current| *current -= amount.clone());
+            self.core_reward_tally(&caller).update(|current| *current -= rpt * amount.clone());
+            self.send().direct_esdt(&caller, &token, 0, &amount);
         } else if token == self.lp_stake_token().get() {
-            let lp_stake = self.lp_stake(&caller).get();
-            let lp_rpt = self.lp_reward_per_token().get();
-            require!(lp_stake > 0, "no stake by user");
-            self.lp_stake(&caller).clear();
-            self.lp_stake_total().update(|current| *current -= lp_stake.clone());
-            self.lp_reward_tally(&caller).update(|current| *current -= lp_rpt * lp_stake.clone());
-            self.send().direct_esdt(&caller, &token, 0, &lp_stake);
+            let stake = self.lp_stake(&caller).get();
+            let rpt = self.lp_reward_per_token().get();
+            require!(stake > 0, "no stake by user");
+            require!(amount <= stake, "invalid amount");
+            self.lp_stake(&caller).update(|current| *current -= amount.clone());
+            self.lp_stake_total().update(|current| *current -= amount.clone());
+            self.lp_reward_tally(&caller).update(|current| *current -= rpt * amount.clone());
+            self.send().direct_esdt(&caller, &token, 0, &amount);
         } else {
             sc_panic!("invalid token");
         }
@@ -109,12 +113,13 @@ pub trait EarnModule: config::ConfigModule {
     }
 
     #[view(getEarnerInfo)]
-    fn get_earner_info_view(&self, address: ManagedAddress) -> MultiValue3<BigUint, BigUint, BigUint> {
+    fn get_earner_info_view(&self, address: ManagedAddress) -> MultiValue4<BigUint, BigUint, BigUint, u64> {
         let core_stake = self.core_stake(&address).get();
         let lp_stake = self.lp_stake(&address).get();
         let reward_total = self.compute_reward(&address);
+        let unlock_time = self.unlock_time(&address).get();
 
-        (core_stake, lp_stake, reward_total).into()
+        (core_stake, lp_stake, reward_total, unlock_time).into()
     }
 
     fn compute_reward(&self, address: &ManagedAddress) -> BigUint {
@@ -130,6 +135,32 @@ pub trait EarnModule: config::ConfigModule {
 
         (core_reward + lp_reward) / BigUint::from(10u64).pow(PRECISION)
     }
+
+    fn lock_stake_for(&self, address: &ManagedAddress) {
+        let lock_time_seconds = self.lock_time_seconds().get();
+
+        if self.unlock_time(&address).is_empty() {
+            let lock_until = self.blockchain().get_block_timestamp() + lock_time_seconds;
+            self.unlock_time(&address).set(lock_until);
+        } else {
+            self.unlock_time(&address).update(|current| *current += lock_time_seconds);
+        }
+    }
+
+    fn require_stake_unlocked_for(&self, address: &ManagedAddress) {
+        let current_time = self.blockchain().get_block_timestamp();
+        let unlock_time = self.unlock_time(&address).get();
+        require!(unlock_time > 0, "nohting to unlock");
+        require!(current_time > unlock_time, "stake is locked");
+    }
+
+    #[storage_mapper("earn:lock_time_seconds")]
+    fn lock_time_seconds(&self) -> SingleValueMapper<u64>;
+
+    #[storage_mapper("earn:unlock_time")]
+    fn unlock_time(&self, address: &ManagedAddress) -> SingleValueMapper<u64>;
+
+    // --
 
     #[storage_mapper("earn:core_stake_token-1")]
     fn core_stake_token(&self) -> SingleValueMapper<TokenIdentifier>;

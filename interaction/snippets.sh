@@ -8,6 +8,7 @@ CORE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=core-token-id)
 COST_AVATAR_SET=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-avatar-set)
 EARN_CORE_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-core-stake-token-id)
 EARN_LP_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-lp-stake-token-id)
+EARN_STAKE_LOCK_SECONDS=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-stake-lock-seconds)
 
 deploy() {
     echo "accidental deploy protection is active"
@@ -59,7 +60,7 @@ upgrade() {
 initEarnModule() {
     erdpy --verbose contract call $ADDRESS \
         --function="initEarnModule" \
-        --arguments "str:$EARN_CORE_STAKE_TOKEN_ID" "str:$EARN_LP_STAKE_TOKEN_ID" \
+        --arguments "str:$EARN_CORE_STAKE_TOKEN_ID" "str:$EARN_LP_STAKE_TOKEN_ID" $EARN_STAKE_LOCK_SECONDS \
         --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --ledger \
