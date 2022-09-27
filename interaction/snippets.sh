@@ -92,10 +92,22 @@ getAvatar() {
 
 # params:
 #   $1 = amount
-distributeForCoreEarn() {
+distributeToCore() {
     erdpy --verbose contract call $ADDRESS \
         --function="ESDTTransfer" \
-        --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeForCoreEarn" \
+        --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeToCore" \
+        --recall-nonce --gas-limit=5000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --ledger \
+        --send || return
+}
+
+# params:
+#   $1 = amount
+distributeToLps() {
+    erdpy --verbose contract call $ADDRESS \
+        --function="ESDTTransfer" \
+        --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeToLps" \
         --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --ledger \
