@@ -144,7 +144,7 @@ pub trait EarnModule: config::ConfigModule {
     fn require_stake_unlocked_for(&self, address: &ManagedAddress) {
         let current_time = self.blockchain().get_block_timestamp();
         let unlock_time = self.unlock_time(&address).get();
-        require!(unlock_time > 0, "nohting to unlock");
+        require!(unlock_time > 0, "nothing to unlock");
         require!(current_time > unlock_time, "stake is locked");
     }
 
