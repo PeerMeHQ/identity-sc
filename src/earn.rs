@@ -137,14 +137,8 @@ pub trait EarnModule: config::ConfigModule {
     }
 
     fn lock_stake_for(&self, address: &ManagedAddress) {
-        let lock_time_seconds = self.lock_time_seconds().get();
-
-        if self.unlock_time(&address).is_empty() {
-            let lock_until = self.blockchain().get_block_timestamp() + lock_time_seconds;
-            self.unlock_time(&address).set(lock_until);
-        } else {
-            self.unlock_time(&address).update(|current| *current += lock_time_seconds);
-        }
+        let lock_until = self.blockchain().get_block_timestamp() + self.lock_time_seconds().get();
+        self.unlock_time(&address).set(lock_until);
     }
 
     fn require_stake_unlocked_for(&self, address: &ManagedAddress) {
