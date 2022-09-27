@@ -46,7 +46,7 @@ deploy() {
 upgrade() {
     erdpy --verbose contract clean || return
     erdpy --verbose contract build || return
-    # cargo test || return
+    cargo test || return
 
     erdpy --verbose contract upgrade $ADDRESS --project . \
         --arguments "str:$CORE_TOKEN_ID" $COST_AVATAR_SET \
