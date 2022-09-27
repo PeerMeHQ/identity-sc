@@ -100,6 +100,8 @@ pub trait EarnModule: config::ConfigModule {
         let caller = self.blockchain().get_caller();
         let reward_total = self.compute_reward(&caller);
 
+        require!(reward_total > 0, "no rewards to claim");
+
         let core_stake = self.core_stake(&caller).get();
         let core_rpt = self.core_reward_per_token().get();
         self.core_reward_tally(&caller).set(core_stake * core_rpt);
