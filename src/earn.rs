@@ -15,8 +15,8 @@ pub trait EarnModule: config::ConfigModule {
     }
 
     #[payable("*")]
-    #[endpoint(distributeForCoreEarn)]
-    fn distribute_for_core_earn_endpoint(&self) {
+    #[endpoint(distributeToCore)]
+    fn distribute_to_earn_core_endpoint(&self) {
         let payment = self.call_value().single_esdt();
         let core_token = self.core_token().get();
         let core_stake_total = self.core_stake_total().get();
@@ -30,8 +30,8 @@ pub trait EarnModule: config::ConfigModule {
     }
 
     #[payable("*")]
-    #[endpoint(distributeForLpEarn)]
-    fn distribute_for_lp_earn_endpoint(&self) {
+    #[endpoint(distributeToLps)]
+    fn distribute_to_earn_lp_endpoint(&self) {
         let payment = self.call_value().single_esdt();
         let core_token = self.core_token().get();
         let lp_stake_total = self.lp_stake_total().get();
