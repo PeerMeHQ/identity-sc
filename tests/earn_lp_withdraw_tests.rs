@@ -68,7 +68,7 @@ fn it_fails_to_withdraw_locked_stake() {
         })
         .assert_ok();
 
-    setup.blockchain.set_block_timestamp(5);
+    setup.blockchain.set_block_timestamp(EARN_STAKE_LOCK_TIME_SECONDS - 1);
 
     setup
         .blockchain
@@ -76,4 +76,16 @@ fn it_fails_to_withdraw_locked_stake() {
             sc.withdraw_from_earn_endpoint(managed_token_id!(EARN_STAKE_LP_TOKEN_ID), managed_biguint!(500));
         })
         .assert_user_error("stake is locked");
+}
+
+#[test]
+fn it_fails_to_withdraw_when_never_staked_before() {
+    let mut setup = setup::setup_contract(identity::contract_obj);
+
+    setup
+        .blockchain
+        .execute_tx(&setup.user_address, &setup.contract, &rust_biguint!(0), |sc| {
+            sc.withdraw_from_earn_endpoint(managed_token_id!(EARN_STAKE_LP_TOKEN_ID), managed_biguint!(500));
+        })
+        .assert_user_error("nothing to unlock");
 }

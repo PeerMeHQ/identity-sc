@@ -55,12 +55,12 @@ pub trait EarnModule: config::ConfigModule {
         if payment.token_identifier == self.core_stake_token().get() {
             let rpt = self.core_reward_per_token().get();
             self.core_stake(&caller).update(|current| *current += payment.amount.clone());
-            self.core_reward_tally(&caller).update(|current| *current += rpt * payment.amount.clone());
+            self.core_reward_tally(&caller).update(|curr| *curr += BigInt::from(rpt * payment.amount.clone()));
             self.core_stake_total().update(|current| *current += payment.amount);
         } else if payment.token_identifier == self.lp_stake_token().get() {
             let rpt = self.lp_reward_per_token().get();
             self.lp_stake(&caller).update(|current| *current += payment.amount.clone());
-            self.lp_reward_tally(&caller).update(|current| *current += rpt * payment.amount.clone());
+            self.lp_reward_tally(&caller).update(|current| *current += BigInt::from(rpt * payment.amount.clone()));
             self.lp_stake_total().update(|current| *current += payment.amount);
         } else {
             sc_panic!("invalid stake token");
@@ -79,7 +79,7 @@ pub trait EarnModule: config::ConfigModule {
             require!(amount <= stake, "invalid amount");
             self.core_stake(&caller).update(|current| *current -= amount.clone());
             self.core_stake_total().update(|current| *current -= amount.clone());
-            self.core_reward_tally(&caller).update(|current| *current -= rpt * amount.clone());
+            self.core_reward_tally(&caller).update(|current| *current -= BigInt::from(rpt * amount.clone()));
             self.send().direct_esdt(&caller, &token, 0, &amount);
         } else if token == self.lp_stake_token().get() {
             let stake = self.lp_stake(&caller).get();
@@ -88,7 +88,7 @@ pub trait EarnModule: config::ConfigModule {
             require!(amount <= stake, "invalid amount");
             self.lp_stake(&caller).update(|current| *current -= amount.clone());
             self.lp_stake_total().update(|current| *current -= amount.clone());
-            self.lp_reward_tally(&caller).update(|current| *current -= rpt * amount.clone());
+            self.lp_reward_tally(&caller).update(|current| *current -= BigInt::from(rpt * amount.clone()));
             self.send().direct_esdt(&caller, &token, 0, &amount);
         } else {
             sc_panic!("invalid token");
@@ -104,11 +104,11 @@ pub trait EarnModule: config::ConfigModule {
 
         let core_stake = self.core_stake(&caller).get();
         let core_rpt = self.core_reward_per_token().get();
-        self.core_reward_tally(&caller).set(core_stake * core_rpt);
+        self.core_reward_tally(&caller).set(BigInt::from(core_stake * core_rpt));
 
         let lp_stake = self.lp_stake(&caller).get();
         let lp_rpt = self.lp_reward_per_token().get();
-        self.lp_reward_tally(&caller).set(lp_stake * lp_rpt);
+        self.lp_reward_tally(&caller).set(BigInt::from(lp_stake * lp_rpt));
 
         let core_token = self.core_token().get();
         self.send().direct_esdt(&caller, &core_token, 0, &reward_total);
@@ -128,12 +128,14 @@ pub trait EarnModule: config::ConfigModule {
         let core_staked = self.core_stake(&address).get();
         let core_reward_per_token = self.core_reward_per_token().get();
         let core_reward_tally = self.core_reward_tally(&address).get();
-        let core_reward = core_staked * core_reward_per_token - core_reward_tally;
+        let core_reward = BigInt::from(core_staked * core_reward_per_token) - core_reward_tally;
+        let core_reward = core_reward.into_big_uint().unwrap_or_else(|| BigUint::zero());
 
         let lp_staked = self.lp_stake(&address).get();
         let lp_reward_per_token = self.lp_reward_per_token().get();
         let lp_reward_tally = self.lp_reward_tally(&address).get();
-        let lp_reward = lp_staked * lp_reward_per_token - lp_reward_tally;
+        let lp_reward = BigInt::from(lp_staked * lp_reward_per_token) - lp_reward_tally;
+        let lp_reward = lp_reward.into_big_uint().unwrap_or_else(|| BigUint::zero());
 
         (core_reward + lp_reward) / BigUint::from(10u64).pow(PRECISION)
     }
@@ -171,7 +173,7 @@ pub trait EarnModule: config::ConfigModule {
     fn core_reward_per_token(&self) -> SingleValueMapper<BigUint>;
 
     #[storage_mapper("earn:core_reward_tally-1")]
-    fn core_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
+    fn core_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigInt>;
 
     // --
 
@@ -188,5 +190,5 @@ pub trait EarnModule: config::ConfigModule {
     fn lp_reward_per_token(&self) -> SingleValueMapper<BigUint>;
 
     #[storage_mapper("earn:lp_reward_tally-1")]
-    fn lp_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
+    fn lp_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigInt>;
 }

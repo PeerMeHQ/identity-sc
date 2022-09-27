@@ -8,7 +8,4 @@ pub trait ConfigModule {
     #[view(getAvatarSetCost)]
     #[storage_mapper("cost_avatar_set")]
     fn cost_avatar_set(&self) -> SingleValueMapper<BigUint>;
-
-    // #[storage_mapper("earn:stake_min_amount")]
-    // fn stake_min_amount(&self) -> SingleValueMapper<BigUint>;
 }
