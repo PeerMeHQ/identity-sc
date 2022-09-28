@@ -64,6 +64,20 @@ initEarnModule() {
         --send || return
 }
 
+# params:
+#   $1 = address
+#   $2 = collection
+#   $3 = nonce
+setAvatarAdmin() {
+    erdpy --verbose contract call $ADDRESS \
+        --function="setAvatarAdmin" \
+        --arguments $1 "str:$2" $3 \
+        --recall-nonce --gas-limit=5000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --ledger \
+        --send || return
+}
+
 getAvatarSetCost() {
     erdpy contract query $ADDRESS \
         --function="getAvatarSetCost" \

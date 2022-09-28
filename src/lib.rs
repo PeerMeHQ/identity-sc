@@ -35,6 +35,17 @@ pub trait Identity: config::ConfigModule + earn::EarnModule {
         });
     }
 
+    #[only_owner]
+    #[endpoint(setAvatarAdmin)]
+    fn set_avatar_admin_endpoint(&self, address: ManagedAddress, nft_collection: TokenIdentifier, nft_nonce: u64) {
+        require!(nft_collection.is_valid_esdt_identifier(), "not a valid token");
+
+        self.avatars(&address).set(&Avatar {
+            token_id: nft_collection,
+            nonce: nft_nonce,
+        });
+    }
+
     #[view(getAvatar)]
     fn get_avatar_view(&self, address: ManagedAddress) -> OptionalValue<MultiValue2<TokenIdentifier, u64>> {
         if self.avatars(&address).is_empty() {
