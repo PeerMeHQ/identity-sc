@@ -16,7 +16,6 @@ elrond_wasm_node::wasm_endpoints! {
         initEarnModule
         setAvatar
         stakeForEarn
-        updateAvatarSetCost
         withdrawFromEarn
     )
 }
