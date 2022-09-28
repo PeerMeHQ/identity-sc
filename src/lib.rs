@@ -17,7 +17,7 @@ pub trait Identity: config::ConfigModule + earn::EarnModule {
     #[init]
     fn init(&self, core_token: TokenIdentifier, image_update_cost: BigUint) {
         self.core_token().set_if_empty(&core_token);
-        self.cost_avatar_set().set_if_empty(&image_update_cost);
+        self.cost_avatar_set().set(&image_update_cost);
     }
 
     #[payable("*")]
@@ -33,12 +33,6 @@ pub trait Identity: config::ConfigModule + earn::EarnModule {
             token_id: nft_collection,
             nonce: nft_nonce,
         });
-    }
-
-    #[only_owner]
-    #[endpoint(updateAvatarSetCost)]
-    fn update_image_set_cost_endpoint(&self, cost: BigUint) {
-        self.cost_avatar_set().set(&cost);
     }
 
     #[view(getAvatar)]

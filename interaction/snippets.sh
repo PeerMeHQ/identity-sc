@@ -64,16 +64,6 @@ initEarnModule() {
         --send || return
 }
 
-updateAvatarSetCost() {
-    erdpy --verbose contract call $ADDRESS \
-        --function="updateAvatarSetCost" \
-        --arguments $COST_AVATAR_SET \
-        --recall-nonce --gas-limit=5000000 \
-        --proxy=$PROXY --chain=$CHAIN_ID \
-        --ledger \
-        --send || return
-}
-
 getAvatarSetCost() {
     erdpy contract query $ADDRESS \
         --function="getAvatarSetCost" \
