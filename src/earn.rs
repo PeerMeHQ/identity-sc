@@ -160,35 +160,35 @@ pub trait EarnModule: config::ConfigModule {
 
     // --
 
-    #[storage_mapper("earn:core_stake_token-1")]
+    #[storage_mapper("earn:core_stake_token")]
     fn core_stake_token(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[storage_mapper("earn:core_stake_total-1")]
+    #[storage_mapper("earn:core_stake_total")]
     fn core_stake_total(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:core_stake-1")]
+    #[storage_mapper("earn:core_stake")]
     fn core_stake(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:core_reward_per_token-1")]
+    #[storage_mapper("earn:core_reward_per_token")]
     fn core_reward_per_token(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:core_reward_tally-1")]
+    #[storage_mapper("earn:core_reward_tally")]
     fn core_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigInt>;
 
     // --
 
-    #[storage_mapper("earn:lp_stake_token-1")]
+    #[storage_mapper("earn:lp_stake_token")]
     fn lp_stake_token(&self) -> SingleValueMapper<TokenIdentifier>;
 
-    #[storage_mapper("earn:lp_stake_total-1")]
+    #[storage_mapper("earn:lp_stake_total")]
     fn lp_stake_total(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:lp_stake-1")]
+    #[storage_mapper("earn:lp_stake")]
     fn lp_stake(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:lp_reward_per_token-1")]
+    #[storage_mapper("earn:lp_reward_per_token")]
     fn lp_reward_per_token(&self) -> SingleValueMapper<BigUint>;
 
-    #[storage_mapper("earn:lp_reward_tally-1")]
+    #[storage_mapper("earn:lp_reward_tally")]
     fn lp_reward_tally(&self, address: &ManagedAddress) -> SingleValueMapper<BigInt>;
 }
