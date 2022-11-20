@@ -46,6 +46,13 @@ pub trait Identity: config::ConfigModule + earn::EarnModule {
         });
     }
 
+    #[endpoint(removeAvatar)]
+    fn remove_avatar_endpoint(&self) {
+        let caller = self.blockchain().get_caller();
+
+        self.avatars(&caller).clear();
+    }
+
     #[view(getAvatar)]
     fn get_avatar_view(&self, address: ManagedAddress) -> OptionalValue<MultiValue2<TokenIdentifier, u64>> {
         if self.avatars(&address).is_empty() {
