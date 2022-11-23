@@ -14,6 +14,7 @@ elrond_wasm_node::wasm_endpoints! {
         getAvatarSetCost
         getEarnerInfo
         initEarnModule
+        removeAvatar
         setAvatar
         setAvatarAdmin
         stakeForEarn
