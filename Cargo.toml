@@ -1,20 +1,19 @@
 [package]
 name = "identity"
 version = "1.0.0"
-authors = ["Micha Vie <micha@freeiam.com>", "Superciety <hello@superciety.com>"]
+authors = ["Micha Vie <micha@peerme.io>", "Peerme <hello@peerme.io>"]
 edition = "2018"
 publish = false
 
 [lib]
 path = "src/lib.rs"
-
-[dependencies.elrond-wasm]
-version = "0.35.0"
-
-[dev-dependencies.elrond-wasm-debug]
-version = "0.35.0"
+[dependencies.multiversx-sc]
+version = "0.39.4"
 
 [dev-dependencies]
 num-bigint = "0.4.2"
 num-traits = "0.2"
 hex = "0.4"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "0.39.4"

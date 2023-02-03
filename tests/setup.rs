@@ -1,7 +1,7 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-use elrond_wasm_debug::testing_framework::*;
-use elrond_wasm_debug::*;
+use multiversx_sc_scenario::whitebox::*;
+use multiversx_sc_scenario::*;
 use identity::config::*;
 use identity::earn::EarnModule;
 use identity::*;

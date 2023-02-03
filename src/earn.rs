@@ -1,10 +1,10 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
 use crate::config;
 
 const PRECISION: u32 = 18;
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait EarnModule: config::ConfigModule {
     #[only_owner]
     #[endpoint(initEarnModule)]

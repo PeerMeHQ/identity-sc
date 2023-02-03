@@ -1,23 +1,23 @@
 NETWORK_NAME="devnet" # devnet, testnet, mainnet
 
-PROXY=$(erdpy data load --partition ${NETWORK_NAME} --key=proxy)
-CHAIN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=chain-id)
-ADDRESS=$(erdpy data load --partition ${NETWORK_NAME} --key=address)
-DEPLOY_TRANSACTION=$(erdpy data load --partition ${NETWORK_NAME} --key=deploy-transaction)
-CORE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=core-token-id)
-COST_AVATAR_SET=$(erdpy data load --partition ${NETWORK_NAME} --key=cost-avatar-set)
-EARN_CORE_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-core-stake-token-id)
-EARN_LP_STAKE_TOKEN_ID=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-lp-stake-token-id)
-EARN_STAKE_LOCK_SECONDS=$(erdpy data load --partition ${NETWORK_NAME} --key=earn-stake-lock-seconds)
+PROXY=$(mxpy data load --partition ${NETWORK_NAME} --key=proxy)
+CHAIN_ID=$(mxpy data load --partition ${NETWORK_NAME} --key=chain-id)
+ADDRESS=$(mxpy data load --partition ${NETWORK_NAME} --key=address)
+DEPLOY_TRANSACTION=$(mxpy data load --partition ${NETWORK_NAME} --key=deploy-transaction)
+CORE_TOKEN_ID=$(mxpy data load --partition ${NETWORK_NAME} --key=core-token-id)
+COST_AVATAR_SET=$(mxpy data load --partition ${NETWORK_NAME} --key=cost-avatar-set)
+EARN_CORE_STAKE_TOKEN_ID=$(mxpy data load --partition ${NETWORK_NAME} --key=earn-core-stake-token-id)
+EARN_LP_STAKE_TOKEN_ID=$(mxpy data load --partition ${NETWORK_NAME} --key=earn-lp-stake-token-id)
+EARN_STAKE_LOCK_SECONDS=$(mxpy data load --partition ${NETWORK_NAME} --key=earn-stake-lock-seconds)
 
 deploy() {
     echo "accidental deploy protection is active"
     exit 1;
 
-    erdpy --verbose contract build || return
+    mxpy --verbose contract build || return
     cargo test || return
 
-    erdpy --verbose contract deploy \
+    mxpy --verbose contract deploy \
         --project . \
         --arguments "str:$CORE_TOKEN_ID" $COST_AVATAR_SET \
         --recall-nonce --gas-limit=50000000 \
@@ -27,11 +27,11 @@ deploy() {
         --ledger \
         --send || return
 
-    TRANSACTION=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emittedTransactionHash']")
-    ADDRESS=$(erdpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['contractAddress']")
+    TRANSACTION=$(mxpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emittedTransactionHash']")
+    ADDRESS=$(mxpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['contractAddress']")
 
-    erdpy data store --partition $NETWORK_NAME --key=address --value=$ADDRESS
-    erdpy data store --partition $NETWORK_NAME --key=deploy-transaction --value=$TRANSACTION
+    mxpy data store --partition $NETWORK_NAME --key=address --value=$ADDRESS
+    mxpy data store --partition $NETWORK_NAME --key=deploy-transaction --value=$TRANSACTION
 
     sleep 6
     initEarnModule
@@ -41,11 +41,11 @@ deploy() {
 }
 
 upgrade() {
-    erdpy --verbose contract clean || return
-    erdpy --verbose contract build || return
+    mxpy --verbose contract clean || return
+    mxpy --verbose contract build || return
     cargo test || return
 
-    erdpy --verbose contract upgrade $ADDRESS --project . \
+    mxpy --verbose contract upgrade $ADDRESS --project . \
         --arguments "str:$CORE_TOKEN_ID" $COST_AVATAR_SET \
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
@@ -55,7 +55,7 @@ upgrade() {
 }
 
 initEarnModule() {
-    erdpy --verbose contract call $ADDRESS \
+    mxpy --verbose contract call $ADDRESS \
         --function="initEarnModule" \
         --arguments "str:$EARN_CORE_STAKE_TOKEN_ID" "str:$EARN_LP_STAKE_TOKEN_ID" $EARN_STAKE_LOCK_SECONDS \
         --recall-nonce --gas-limit=5000000 \
@@ -69,7 +69,7 @@ initEarnModule() {
 #   $2 = collection
 #   $3 = nonce
 setAvatarAdmin() {
-    erdpy --verbose contract call $ADDRESS \
+    mxpy --verbose contract call $ADDRESS \
         --function="setAvatarAdmin" \
         --arguments $1 "str:$2" $3 \
         --recall-nonce --gas-limit=5000000 \
@@ -79,7 +79,7 @@ setAvatarAdmin() {
 }
 
 getAvatarSetCost() {
-    erdpy contract query $ADDRESS \
+    mxpy contract query $ADDRESS \
         --function="getAvatarSetCost" \
         --arguments $1 \
         --proxy=$PROXY || return
@@ -88,7 +88,7 @@ getAvatarSetCost() {
 # params:
 #   $1 = address
 getAvatar() {
-    erdpy contract query $ADDRESS \
+    mxpy contract query $ADDRESS \
         --function="getAvatar" \
         --arguments $1 \
         --proxy=$PROXY || return
@@ -97,7 +97,7 @@ getAvatar() {
 # params:
 #   $1 = amount
 distributeToCore() {
-    erdpy --verbose contract call $ADDRESS \
+    mxpy --verbose contract call $ADDRESS \
         --function="ESDTTransfer" \
         --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeToCore" \
         --recall-nonce --gas-limit=5000000 \
@@ -109,7 +109,7 @@ distributeToCore() {
 # params:
 #   $1 = amount
 distributeToLps() {
-    erdpy --verbose contract call $ADDRESS \
+    mxpy --verbose contract call $ADDRESS \
         --function="ESDTTransfer" \
         --arguments "str:$CORE_TOKEN_ID" $1 "str:distributeToLps" \
         --recall-nonce --gas-limit=5000000 \
@@ -121,7 +121,7 @@ distributeToLps() {
 # params:
 #   $1 = amount
 stakeForEarn() {
-    erdpy --verbose contract call $ADDRESS \
+    mxpy --verbose contract call $ADDRESS \
         --function="ESDTTransfer" \
         --arguments "str:$EARN_STAKE_TOKEN_ID" $1 "str:stakeForEarn" \
         --recall-nonce --gas-limit=5000000 \
@@ -133,7 +133,7 @@ stakeForEarn() {
 # params:
 #   $1 = address
 getEarnerInfo() {
-    erdpy contract query $ADDRESS \
+    mxpy contract query $ADDRESS \
         --function="getEarnerInfo" \
         --arguments $1 \
         --proxy=$PROXY || return

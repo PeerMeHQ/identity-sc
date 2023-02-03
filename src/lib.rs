@@ -1,7 +1,7 @@
 #![no_std]
 
-elrond_wasm::imports!();
-elrond_wasm::derive_imports!();
+multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 pub mod config;
 pub mod earn;
@@ -12,7 +12,7 @@ pub struct Avatar<M: ManagedTypeApi> {
     pub nonce: u64,
 }
 
-#[elrond_wasm::contract]
+#[multiversx_sc::contract]
 pub trait Identity: config::ConfigModule + earn::EarnModule {
     #[init]
     fn init(&self, core_token: TokenIdentifier, image_update_cost: BigUint) {

@@ -1,31 +1,25 @@
 [package]
 name = "identity-wasm"
 version = "1.0.0"
-authors = ["Micha Vie <micha@freeiam.com>", "Superciety <hello@superciety.com>"]
+authors = ["Micha Vie <micha@peerme.io>", "Peerme <hello@peerme.io>"]
 edition = "2018"
 publish = false
 
 [lib]
-crate-type = [ "cdylib",]
+crate-type = ["cdylib"]
 
 [workspace]
-members = [ ".",]
+members = ["."]
 
 [dev-dependencies]
-
 [profile.release]
 codegen-units = 1
 opt-level = "z"
 lto = true
 debug = false
 panic = "abort"
-
 [dependencies.identity]
 path = ".."
 
-[dependencies.elrond-wasm-node]
-version = "0.35.0"
-
-[dependencies.elrond-wasm-output]
-version = "0.35.0"
-features = [ "wasm-output-mode",]
+[dependencies.multiversx-sc-wasm-adapter]
+version = "0.39.4"

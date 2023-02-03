@@ -1,6 +1,6 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-#[elrond_wasm::module]
+#[multiversx_sc::module]
 pub trait ConfigModule {
     #[storage_mapper("core_token")]
     fn core_token(&self) -> SingleValueMapper<TokenIdentifier>;

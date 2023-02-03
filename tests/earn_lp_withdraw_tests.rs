@@ -1,6 +1,6 @@
-elrond_wasm::imports!();
+multiversx_sc::imports!();
 
-use elrond_wasm_debug::*;
+use multiversx_sc_scenario::*;
 use identity::earn::EarnModule;
 use setup::*;
 
