@@ -3,13 +3,9 @@ multiversx_sc::imports!();
 use multiversx_sc_scenario::whitebox::*;
 use multiversx_sc_scenario::*;
 use identity::config::*;
-use identity::earn::EarnModule;
 use identity::*;
 
 pub const CORE_TOKEN_ID: &[u8] = b"SUPER-abcdef";
-pub const EARN_STAKE_CORE_TOKEN_ID: &[u8] = b"SUPERPOWER-abcdef";
-pub const EARN_STAKE_LP_TOKEN_ID: &[u8] = b"SUPEREGLD-abcdef";
-pub const EARN_STAKE_LOCK_TIME_SECONDS: u64 = 60 * 60 * 24 * 7;
 
 pub const WASM_PATH: &'static str = "output/identity.wasm";
 
@@ -34,23 +30,9 @@ where
     let user_address = blockchain.create_user_account(&rust_zero);
     let contract = blockchain.create_sc_account(&rust_zero, Some(&owner_address), builder, WASM_PATH);
 
-    blockchain.set_esdt_balance(&owner_address, CORE_TOKEN_ID, &rust_biguint!(10_000));
-    blockchain.set_esdt_balance(&owner_address, EARN_STAKE_CORE_TOKEN_ID, &rust_biguint!(10_000));
-    blockchain.set_esdt_balance(&owner_address, EARN_STAKE_LP_TOKEN_ID, &rust_biguint!(10_000));
-
-    blockchain.set_esdt_balance(&user_address, CORE_TOKEN_ID, &rust_biguint!(1_000));
-    blockchain.set_esdt_balance(&user_address, EARN_STAKE_CORE_TOKEN_ID, &rust_biguint!(1_000));
-    blockchain.set_esdt_balance(&user_address, EARN_STAKE_LP_TOKEN_ID, &rust_biguint!(1_000));
-
     blockchain
         .execute_tx(&owner_address, &contract, &rust_zero, |sc| {
             sc.init(managed_token_id!(CORE_TOKEN_ID), managed_biguint!(100));
-
-            sc.init_earn_module_endpoint(
-                managed_token_id!(EARN_STAKE_CORE_TOKEN_ID),
-                managed_token_id!(EARN_STAKE_LP_TOKEN_ID),
-                EARN_STAKE_LOCK_TIME_SECONDS,
-            );
         })
         .assert_ok();
 

@@ -4,7 +4,6 @@ multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 pub mod config;
-pub mod earn;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
@@ -13,7 +12,7 @@ pub struct Avatar<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::contract]
-pub trait Identity: config::ConfigModule + earn::EarnModule {
+pub trait Identity: config::ConfigModule {
     #[init]
     fn init(&self, core_token: TokenIdentifier, image_update_cost: BigUint) {
         self.core_token().set_if_empty(&core_token);

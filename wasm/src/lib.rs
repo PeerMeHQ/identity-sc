@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           12
+// Endpoints:                            5
 // Async Callback (empty):               1
-// Total number of exported functions:  14
+// Total number of exported functions:   7
 
 #![no_std]
 #![feature(alloc_error_handler, lang_items)]
@@ -23,13 +23,6 @@ multiversx_sc_wasm_adapter::endpoints! {
         removeAvatar
         getAvatar
         getAvatarSetCost
-        initEarnModule
-        distributeToCore
-        distributeToLps
-        stakeForEarn
-        withdrawFromEarn
-        claimEarnRewards
-        getEarnerInfo
     )
 }
 
