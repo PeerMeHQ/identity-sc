@@ -1,5 +1,6 @@
 NETWORK_NAME="devnet" # devnet, testnet, mainnet
 
+REPOSITORY=$(mxpy data load --partition general --key=repository)
 PROXY=$(mxpy data load --partition ${NETWORK_NAME} --key=proxy)
 CHAIN_ID=$(mxpy data load --partition ${NETWORK_NAME} --key=chain-id)
 ADDRESS=$(mxpy data load --partition ${NETWORK_NAME} --key=address)
@@ -46,6 +47,42 @@ upgrade() {
         --metadata-payable-by-sc \
         --ledger \
         --send || return
+}
+
+release() {
+    name=$(grep -o 'name = ".*"' Cargo.toml | head -1 | cut -d'"' -f2)
+    version=$(grep -o 'version = ".*"' Cargo.toml | head -1 | cut -d'"' -f2)
+
+    curl -sL https://api.github.com/repos/$REPOSITORY/releases/tags/v$version > release.json
+    assets=($(grep -o '"browser_download_url":.*' release.json | cut -d'"' -f4))
+
+    echo "Upgrading $name with GitHub ($REPOSITORY@v$version) release artifacts in 10s ..."
+    sleep 10
+
+    mkdir -p output-deterministic
+
+    for asset in "${assets[@]}"; do
+        echo "Downloading $asset"
+        curl -sLJO $asset --output-dir $PWD/output-deterministic -o $(basename $asset)
+    done
+
+    mxpy --verbose contract upgrade $ADDRESS \
+        --bytecode=./output-deterministic/$name.wasm \
+        --arguments "str:$CORE_TOKEN_ID" $COST_AVATAR_SET \
+        --recall-nonce --gas-limit=50000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        --metadata-payable-by-sc \
+        --ledger \
+        --send || return
+
+    mxpy --verbose contract verify $ADDRESS \
+        --packaged-src=./output-deterministic/$name-$version.source.json \
+        --verifier-url="https://devnet-play-api.multiversx.com" \
+        --docker-image="multiversx/sdk-rust-contract-builder:v4.1.1" \
+        --ledger || return
+
+    rm release.json
+    rm -rf output-deterministic
 }
 
 # params:

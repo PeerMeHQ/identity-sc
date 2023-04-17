@@ -16,3 +16,5 @@ wallets/*
 
 # others
 *.pem
+output-deterministic
+release.json

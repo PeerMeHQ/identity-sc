@@ -1,4 +1,7 @@
 {
+  "general": {
+    "repository": "PeerMeHQ/identity-sc"
+  },
   "devnet": {
     "proxy": "https://devnet-gateway.multiversx.com",
     "chain-id": "D",
