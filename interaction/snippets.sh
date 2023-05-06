@@ -85,6 +85,15 @@ release() {
     rm -rf output-deterministic
 }
 
+withdrawCostTokens() {
+    mxpy --verbose contract call $ADDRESS \
+        --function="withdrawCostTokens" \
+        --recall-nonce --gas-limit=5000000 \
+        --proxy=$PROXY --chain=$CHAIN_ID \
+        "${SNIPPETS_SECURE_SIGN_METHOD[@]}" \
+        --send || return
+}
+
 # params:
 #   $1 = address
 #   $2 = collection

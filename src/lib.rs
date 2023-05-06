@@ -19,6 +19,16 @@ pub trait Identity: config::ConfigModule {
         self.cost_avatar_set().set(&image_update_cost);
     }
 
+    #[only_owner]
+    #[endpoint(withdrawCostTokens)]
+    fn withdraw_cost_tokens_endpoint(&self) {
+        let caller = self.blockchain().get_caller();
+        let core_token_id = self.core_token().get();
+        let balance = self.blockchain().get_sc_balance(&EgldOrEsdtTokenIdentifier::esdt(core_token_id.clone()), 0);
+
+        self.send().direct_esdt(&caller, &core_token_id, 0, &balance);
+    }
+
     #[payable("*")]
     #[endpoint(setAvatar)]
     fn set_avatar_endpoint(&self, nft_collection: TokenIdentifier, nft_nonce: u64) {
