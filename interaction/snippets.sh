@@ -22,7 +22,7 @@ deploy() {
         --proxy=$PROXY --chain=$CHAIN_ID \
         --outfile="deploy-$NETWORK_NAME.interaction.json" \
         --metadata-payable-by-sc \
-        --ledger \
+        "${SNIPPETS_SECURE_SIGN_METHOD[@]}" \
         --send || return
 
     TRANSACTION=$(mxpy data parse --file="deploy-${NETWORK_NAME}.interaction.json" --expression="data['emittedTransactionHash']")
@@ -45,7 +45,7 @@ upgrade() {
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --metadata-payable-by-sc \
-        --ledger \
+        "${SNIPPETS_SECURE_SIGN_METHOD[@]}" \
         --send || return
 }
 
@@ -72,7 +72,7 @@ release() {
         --recall-nonce --gas-limit=50000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
         --metadata-payable-by-sc \
-        --ledger \
+        "${SNIPPETS_SECURE_SIGN_METHOD[@]}" \
         --send || return
 
     mxpy --verbose contract verify $ADDRESS \
@@ -104,7 +104,7 @@ setAvatarAdmin() {
         --arguments $1 "str:$2" $3 \
         --recall-nonce --gas-limit=5000000 \
         --proxy=$PROXY --chain=$CHAIN_ID \
-        --ledger \
+        "${SNIPPETS_SECURE_SIGN_METHOD[@]}" \
         --send || return
 }
 
