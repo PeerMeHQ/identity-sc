@@ -1,9 +1,9 @@
 multiversx_sc::imports!();
 
-use multiversx_sc_scenario::whitebox::*;
-use multiversx_sc_scenario::*;
 use identity::config::*;
 use identity::*;
+use multiversx_sc_scenario::testing_framework::{BlockchainStateWrapper, ContractObjWrapper};
+use multiversx_sc_scenario::*;
 
 pub const CORE_TOKEN_ID: &[u8] = b"SUPER-abcdef";
 
