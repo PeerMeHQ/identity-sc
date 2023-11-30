@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            6
+// Endpoints:                            7
 // Async Callback (empty):               1
-// Total number of exported functions:   8
+// Total number of exported functions:   9
 
 #![no_std]
 
@@ -22,6 +22,7 @@ multiversx_sc_wasm_adapter::endpoints! {
     identity
     (
         init => init
+        claimEgld => claim_egld_endpoint
         withdrawCostTokens => withdraw_cost_tokens_endpoint
         setAvatar => set_avatar_endpoint
         setAvatarAdmin => set_avatar_admin_endpoint
