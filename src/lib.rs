@@ -19,6 +19,9 @@ pub trait Identity: config::ConfigModule {
         self.cost_avatar_set().set(&image_update_cost);
     }
 
+    #[endpoint]
+    fn upgrade(&self) {}
+
     #[only_owner]
     #[endpoint(withdrawCostTokens)]
     fn withdraw_cost_tokens_endpoint(&self) {
