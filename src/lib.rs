@@ -19,7 +19,7 @@ pub trait Identity: config::ConfigModule {
         self.cost_avatar_set().set(&image_update_cost);
     }
 
-    #[endpoint]
+    #[upgrade]
     fn upgrade(&self) {}
 
     #[only_owner]
