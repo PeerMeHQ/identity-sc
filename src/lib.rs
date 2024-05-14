@@ -22,6 +22,17 @@ pub trait Identity: config::ConfigModule {
     #[upgrade]
     fn upgrade(&self) {}
 
+    #[endpoint(burn)]
+    fn burn_endpoint(&self) {
+        let payment = self.call_value().single_esdt();
+        let core_token = self.core_token().get();
+        require!(payment.token_identifier == core_token, "invalid token");
+
+        self.burned_amount().update(|current| *current += payment.amount.clone());
+
+        self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
+    }
+
     #[only_owner]
     #[endpoint(withdrawCostTokens)]
     fn withdraw_cost_tokens_endpoint(&self) {
@@ -77,4 +88,7 @@ pub trait Identity: config::ConfigModule {
 
     #[storage_mapper("avatars")]
     fn avatars(&self, address: &ManagedAddress) -> SingleValueMapper<Avatar<Self::Api>>;
+
+    #[storage_mapper("burned")]
+    fn burned_amount(&self) -> SingleValueMapper<BigUint>;
 }
