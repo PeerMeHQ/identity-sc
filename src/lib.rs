@@ -4,6 +4,8 @@ multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 pub mod config;
+pub mod trust;
+pub mod errors;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
@@ -12,7 +14,7 @@ pub struct Avatar<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::contract]
-pub trait Identity: config::ConfigModule {
+pub trait Identity: config::ConfigModule + trust::TrustModule {
     #[init]
     fn init(&self, core_token: TokenIdentifier, image_update_cost: BigUint) {
         self.core_token().set_if_empty(&core_token);
@@ -20,15 +22,26 @@ pub trait Identity: config::ConfigModule {
     }
 
     #[upgrade]
-    fn upgrade(&self) {}
+    fn upgrade(&self, reward_token: TokenIdentifier) {
+        self.reward_token().set(&reward_token);
+    }
 
-    #[endpoint(burn)]
-    fn burn_endpoint(&self) {
+    #[endpoint(burnForTrust)]
+    fn burn_for_trust_endpoint(&self) {
         let payment = self.call_value().single_esdt();
         let core_token = self.core_token().get();
         require!(payment.token_identifier == core_token, "invalid token");
 
         self.burned_amount().update(|current| *current += payment.amount.clone());
+
+        self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
+    }
+
+    #[endpoint(migrateToTrust)]
+    fn migrate_to_trust_endpoint(&self) {
+        let payment = self.call_value().single_esdt();
+        let reward_token = self.reward_token().get();
+        require!(payment.token_identifier == reward_token, "invalid token");
 
         self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
     }
@@ -56,6 +69,8 @@ pub trait Identity: config::ConfigModule {
             token_id: nft_collection,
             nonce: nft_nonce,
         });
+
+        self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
     }
 
     #[only_owner]
@@ -89,6 +104,7 @@ pub trait Identity: config::ConfigModule {
     #[storage_mapper("avatars")]
     fn avatars(&self, address: &ManagedAddress) -> SingleValueMapper<Avatar<Self::Api>>;
 
-    #[storage_mapper("burned")]
+    #[view(getBurnedAmount)]
+    #[storage_mapper("burned_amount")]
     fn burned_amount(&self) -> SingleValueMapper<BigUint>;
 }
