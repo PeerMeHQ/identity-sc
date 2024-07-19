@@ -1,5 +1,8 @@
 #![no_std]
 
+use config::{CORE_TOKEN_DECIMALS, REWARD_TOKEN_DECIMALS};
+use trust::CORE_TOKEN_BURN_TRUST_MULTIPLIER;
+
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
@@ -28,22 +31,33 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
 
     #[endpoint(burnForTrust)]
     fn burn_for_trust_endpoint(&self) {
+        let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
         let core_token = self.core_token().get();
         require!(payment.token_identifier == core_token, "invalid token");
 
-        self.burned_amount().update(|current| *current += payment.amount.clone());
-
         self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
+
+        let user = self.get_or_create_trusted_user(&caller);
+        let trust = self.calculate_trust_from_tokens(&payment.amount, CORE_TOKEN_DECIMALS);
+        let amplified_trust = trust * CORE_TOKEN_BURN_TRUST_MULTIPLIER;
+
+        self.increase_trust_score(user, amplified_trust);
     }
 
     #[endpoint(migrateToTrust)]
     fn migrate_to_trust_endpoint(&self) {
+        let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
         let reward_token = self.reward_token().get();
         require!(payment.token_identifier == reward_token, "invalid token");
 
         self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
+
+        let user = self.get_or_create_trusted_user(&caller);
+        let trust = self.calculate_trust_from_tokens(&payment.amount, REWARD_TOKEN_DECIMALS);
+
+        self.increase_trust_score(user, trust);
     }
 
     #[only_owner]
@@ -103,8 +117,4 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
 
     #[storage_mapper("avatars")]
     fn avatars(&self, address: &ManagedAddress) -> SingleValueMapper<Avatar<Self::Api>>;
-
-    #[view(getBurnedAmount)]
-    #[storage_mapper("burned_amount")]
-    fn burned_amount(&self) -> SingleValueMapper<BigUint>;
 }
