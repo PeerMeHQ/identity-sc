@@ -39,7 +39,13 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
 
         let user = self.get_or_create_trusted_user(&caller);
         let trust = self.calculate_trust_from_tokens(&payment.amount, CORE_TOKEN_DECIMALS);
-        let multiplier = self.core_token_burn_trust_multiplier().get();
+
+        let multiplier = if !self.core_token_burn_trust_multiplier().is_empty() {
+            self.core_token_burn_trust_multiplier().get() as u64
+        } else {
+            1u64
+        };
+
         let amplified_trust = trust * multiplier;
 
         self.increase_trust_score(user, amplified_trust);

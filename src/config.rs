@@ -21,7 +21,7 @@ pub trait ConfigModule {
 
     #[only_owner]
     #[endpoint(setCoreTokenBurnTrustMultiplier)]
-    fn set_core_token_burn_trust_multiplier_endpoint(&self, multiplier: u64) {
+    fn set_core_token_burn_trust_multiplier_endpoint(&self, multiplier: u8) {
         self.core_token_burn_trust_multiplier().set(multiplier);
     }
 
@@ -46,5 +46,5 @@ pub trait ConfigModule {
 
     #[view(getCoreTokenBurnTrustMultiplier)]
     #[storage_mapper("core_token_burn_trust_multiplier")]
-    fn core_token_burn_trust_multiplier(&self) -> SingleValueMapper<u64>;
+    fn core_token_burn_trust_multiplier(&self) -> SingleValueMapper<u8>;
 }
