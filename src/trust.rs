@@ -24,7 +24,7 @@ pub trait TrustModule: config::ConfigModule {
 
         let user_id = self.get_or_create_trusted_user(&address);
 
-        self.trust_score(user_id).set(0);
+        self.trust_score(user_id).set(BAN_THRESHOLD);
     }
 
     fn require_not_banned(&self, user: UserId) {
