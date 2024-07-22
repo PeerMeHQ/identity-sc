@@ -19,6 +19,12 @@ pub trait ConfigModule {
         self.managers().swap_remove(&address);
     }
 
+    #[only_owner]
+    #[endpoint(setCoreTokenBurnTrustMultiplier)]
+    fn set_core_token_burn_trust_multiplier_endpoint(&self, multiplier: u64) {
+        self.core_token_burn_trust_multiplier().set(multiplier);
+    }
+
     #[view(getCoreToken)]
     #[storage_mapper("core_token")]
     fn core_token(&self) -> SingleValueMapper<TokenIdentifier>;
@@ -37,4 +43,8 @@ pub trait ConfigModule {
     #[view(getManagers)]
     #[storage_mapper("managers")]
     fn managers(&self) -> UnorderedSetMapper<ManagedAddress>;
+
+    #[view(getCoreTokenBurnTrustMultiplier)]
+    #[storage_mapper("core_token_burn_trust_multiplier")]
+    fn core_token_burn_trust_multiplier(&self) -> SingleValueMapper<u64>;
 }

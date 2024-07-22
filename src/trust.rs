@@ -5,8 +5,6 @@ use crate::{config::{self, UserId}, errors::{ERR_TRUST_BANNED, ERR_TRUST_CALLER_
 const START_AMOUNT: u64 = 1;
 const BAN_THRESHOLD: u64 = 0;
 
-pub const CORE_TOKEN_BURN_TRUST_MULTIPLIER: u64 = 2;
-
 #[multiversx_sc::module]
 pub trait TrustModule: config::ConfigModule {
     #[endpoint(addTrust)]

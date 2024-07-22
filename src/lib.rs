@@ -1,7 +1,6 @@
 #![no_std]
 
 use config::{CORE_TOKEN_DECIMALS, REWARD_TOKEN_DECIMALS};
-use trust::CORE_TOKEN_BURN_TRUST_MULTIPLIER;
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -40,7 +39,8 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
 
         let user = self.get_or_create_trusted_user(&caller);
         let trust = self.calculate_trust_from_tokens(&payment.amount, CORE_TOKEN_DECIMALS);
-        let amplified_trust = trust * CORE_TOKEN_BURN_TRUST_MULTIPLIER;
+        let multiplier = self.core_token_burn_trust_multiplier().get();
+        let amplified_trust = trust * multiplier;
 
         self.increase_trust_score(user, amplified_trust);
     }
