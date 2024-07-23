@@ -1,6 +1,6 @@
 multiversx_sc::imports!();
 
-use crate::{config::{self, UserId}, errors::{ERR_TRUST_BANNED, ERR_TRUST_CALLER_NOT_MANAGER, ERR_USER_NOT_FOUND}};
+use crate::{config::{self, TrustPoints, UserId}, errors::{ERR_TRUST_BANNED, ERR_TRUST_CALLER_NOT_MANAGER, ERR_USER_NOT_FOUND}};
 
 const START_AMOUNT: u64 = 1;
 const BAN_THRESHOLD: u64 = 0;
@@ -8,12 +8,16 @@ const BAN_THRESHOLD: u64 = 0;
 #[multiversx_sc::module]
 pub trait TrustModule: config::ConfigModule {
     #[endpoint(addTrust)]
-    fn add_trust_endpoint(&self, address: ManagedAddress, amount: u64) {
+    fn add_trust_endpoint(&self, entries: MultiValueEncoded<MultiValue2<ManagedAddress, TrustPoints>>) {
         self.require_caller_trust_manager();
 
-        let user_id = self.users().get_user_id(&address);
+        for entry in entries.into_iter() {
+            let (address, trust) = entry.into_tuple();
 
-        self.increase_trust_score(user_id, amount);
+            let user_id = self.get_or_create_trusted_user(&address);
+
+            self.increase_trust_score(user_id, trust);
+        }
     }
 
     #[endpoint(banUser)]

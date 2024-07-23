@@ -1,6 +1,7 @@
 multiversx_sc::imports!();
 
 pub type UserId = usize;
+pub type TrustPoints = u64;
 
 pub const CORE_TOKEN_DECIMALS: u32 = 18;
 pub const REWARD_TOKEN_DECIMALS: u32 = 18;
