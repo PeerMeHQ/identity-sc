@@ -1,3 +1,5 @@
+use crate::errors::ERR_CALLER_NOT_MANAGER;
+
 multiversx_sc::imports!();
 
 pub type UserId = usize;
@@ -24,6 +26,14 @@ pub trait ConfigModule {
     #[endpoint(setCoreTokenBurnTrustMultiplier)]
     fn set_core_token_burn_trust_multiplier_endpoint(&self, multiplier: u8) {
         self.core_token_burn_trust_multiplier().set(multiplier);
+    }
+
+    fn require_caller_manager(&self) {
+        let caller = self.blockchain().get_caller();
+        let is_owner = self.blockchain().get_owner_address() == caller;
+        let is_manager = self.managers().contains(&caller);
+
+        require!(is_owner || is_manager, ERR_CALLER_NOT_MANAGER);
     }
 
     #[view(getCoreToken)]

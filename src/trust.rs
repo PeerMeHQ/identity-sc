@@ -1,6 +1,6 @@
 multiversx_sc::imports!();
 
-use crate::{config::{self, TrustPoints, UserId}, errors::{ERR_TRUST_BANNED, ERR_TRUST_CALLER_NOT_MANAGER, ERR_USER_NOT_FOUND}};
+use crate::{config::{self, TrustPoints, UserId}, errors::{ERR_TRUST_BANNED, ERR_USER_NOT_FOUND}};
 
 const START_AMOUNT: u64 = 1;
 const BAN_THRESHOLD: u64 = 0;
@@ -9,7 +9,7 @@ const BAN_THRESHOLD: u64 = 0;
 pub trait TrustModule: config::ConfigModule {
     #[endpoint(addTrust)]
     fn add_trust_endpoint(&self, entries: MultiValueEncoded<MultiValue2<ManagedAddress, TrustPoints>>) {
-        self.require_caller_trust_manager();
+        self.require_caller_manager();
 
         for entry in entries.into_iter() {
             let (address, trust) = entry.into_tuple();
@@ -22,7 +22,7 @@ pub trait TrustModule: config::ConfigModule {
 
     #[endpoint(banUser)]
     fn ban_user_endpoint(&self, address: ManagedAddress) {
-        self.require_caller_trust_manager();
+        self.require_caller_manager();
 
         let user_id = self.get_or_create_trusted_user(&address);
 
@@ -62,14 +62,6 @@ pub trait TrustModule: config::ConfigModule {
         self.trust_score(new_user).set(START_AMOUNT);
 
         new_user
-    }
-
-    fn require_caller_trust_manager(&self) {
-        let caller = self.blockchain().get_caller();
-        let is_owner = self.blockchain().get_owner_address() == caller;
-        let is_manager = self.managers().contains(&caller);
-
-        require!(is_owner || is_manager, ERR_TRUST_CALLER_NOT_MANAGER);
     }
 
     fn calculate_trust_from_tokens(&self, amount: &BigUint, decimals: u32) -> u64 {
