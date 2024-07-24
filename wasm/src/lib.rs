@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           17
+// Endpoints:                           18
 // Async Callback (empty):               1
-// Total number of exported functions:  20
+// Total number of exported functions:  21
 
 #![no_std]
 
@@ -37,6 +37,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getCoreTokenBurnTrustMultiplier => core_token_burn_trust_multiplier
         addTrust => add_trust_endpoint
         banUser => ban_user_endpoint
+        getTrustScore => get_trust_score
     )
 }
 

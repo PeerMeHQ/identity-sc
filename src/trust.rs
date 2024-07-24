@@ -29,6 +29,17 @@ pub trait TrustModule: config::ConfigModule {
         self.trust_score(user_id).set(BAN_THRESHOLD);
     }
 
+    #[view(getTrustScore)]
+    fn get_trust_score(&self, address: ManagedAddress) -> u64 {
+        let user_id = self.users().get_user_id(&address);
+
+        if user_id == 0 {
+            return 0;
+        }
+
+        self.trust_score(user_id).get()
+    }
+
     fn require_not_banned(&self, user: UserId) {
         let trust_score = self.trust_score(user).get();
 
