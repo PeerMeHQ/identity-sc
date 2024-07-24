@@ -18,8 +18,9 @@ pub struct Avatar<M: ManagedTypeApi> {
 #[multiversx_sc::contract]
 pub trait Identity: config::ConfigModule + trust::TrustModule {
     #[init]
-    fn init(&self, core_token: TokenIdentifier, image_update_cost: BigUint) {
-        self.core_token().set_if_empty(&core_token);
+    fn init(&self, core_token: TokenIdentifier, reward_token: TokenIdentifier, image_update_cost: BigUint) {
+        self.core_token().set(&core_token);
+        self.reward_token().set(&reward_token);
         self.cost_avatar_set().set(&image_update_cost);
     }
 
