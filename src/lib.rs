@@ -1,9 +1,13 @@
 #![no_std]
 
+use config::{CORE_TOKEN_DECIMALS, REWARD_TOKEN_DECIMALS};
+
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 pub mod config;
+pub mod trust;
+pub mod errors;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
@@ -12,7 +16,7 @@ pub struct Avatar<M: ManagedTypeApi> {
 }
 
 #[multiversx_sc::contract]
-pub trait Identity: config::ConfigModule {
+pub trait Identity: config::ConfigModule + trust::TrustModule {
     #[init]
     fn init(&self, core_token: TokenIdentifier, image_update_cost: BigUint) {
         self.core_token().set_if_empty(&core_token);
@@ -20,17 +24,46 @@ pub trait Identity: config::ConfigModule {
     }
 
     #[upgrade]
-    fn upgrade(&self) {}
+    fn upgrade(&self, reward_token: TokenIdentifier) {
+        self.reward_token().set(&reward_token);
+    }
 
-    #[endpoint(burn)]
-    fn burn_endpoint(&self) {
+    #[endpoint(burnForTrust)]
+    fn burn_for_trust_endpoint(&self) {
+        let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
         let core_token = self.core_token().get();
         require!(payment.token_identifier == core_token, "invalid token");
 
-        self.burned_amount().update(|current| *current += payment.amount.clone());
+        self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
+
+        let user = self.get_or_create_trusted_user(&caller);
+        let trust = self.calculate_trust_from_tokens(&payment.amount, CORE_TOKEN_DECIMALS);
+
+        let multiplier = if !self.core_token_burn_trust_multiplier().is_empty() {
+            self.core_token_burn_trust_multiplier().get() as u64
+        } else {
+            1u64
+        };
+
+        let amplified_trust = trust * multiplier;
+
+        self.increase_trust_score(user, amplified_trust);
+    }
+
+    #[endpoint(migrateToTrust)]
+    fn migrate_to_trust_endpoint(&self) {
+        let caller = self.blockchain().get_caller();
+        let payment = self.call_value().single_esdt();
+        let reward_token = self.reward_token().get();
+        require!(payment.token_identifier == reward_token, "invalid token");
 
         self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
+
+        let user = self.get_or_create_trusted_user(&caller);
+        let trust = self.calculate_trust_from_tokens(&payment.amount, REWARD_TOKEN_DECIMALS);
+
+        self.increase_trust_score(user, trust);
     }
 
     #[only_owner]
@@ -56,6 +89,8 @@ pub trait Identity: config::ConfigModule {
             token_id: nft_collection,
             nonce: nft_nonce,
         });
+
+        self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
     }
 
     #[only_owner]
@@ -88,7 +123,4 @@ pub trait Identity: config::ConfigModule {
 
     #[storage_mapper("avatars")]
     fn avatars(&self, address: &ManagedAddress) -> SingleValueMapper<Avatar<Self::Api>>;
-
-    #[storage_mapper("burned")]
-    fn burned_amount(&self) -> SingleValueMapper<BigUint>;
 }
