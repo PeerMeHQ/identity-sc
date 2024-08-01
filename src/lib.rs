@@ -29,6 +29,7 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
         self.reward_token().set(&reward_token);
     }
 
+    #[payable("*")]
     #[endpoint(burnForTrust)]
     fn burn_for_trust_endpoint(&self) {
         let caller = self.blockchain().get_caller();
@@ -52,6 +53,7 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
         self.increase_trust_score(user, amplified_trust);
     }
 
+    #[payable("*")]
     #[endpoint(migrateToTrust)]
     fn migrate_to_trust_endpoint(&self) {
         let caller = self.blockchain().get_caller();
