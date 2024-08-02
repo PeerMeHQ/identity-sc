@@ -8,7 +8,16 @@ const BAN_THRESHOLD: u64 = 0;
 #[multiversx_sc::module]
 pub trait TrustModule: config::ConfigModule {
     #[endpoint(addTrust)]
-    fn add_trust_endpoint(&self, entries: MultiValueEncoded<MultiValue2<ManagedAddress, TrustPoints>>) {
+    fn add_trust_endpoint(&self, user: ManagedAddress, amount: TrustPoints) {
+        self.require_caller_manager();
+
+        let user_id = self.get_or_create_trusted_user(&user);
+
+        self.increase_trust_score(user_id, amount);
+    }
+
+    #[endpoint(addTrustBatch)]
+    fn add_trust_batch_endpoint(&self, entries: MultiValueEncoded<MultiValue2<ManagedAddress, TrustPoints>>) {
         self.require_caller_manager();
 
         for entry in entries.into_iter() {
