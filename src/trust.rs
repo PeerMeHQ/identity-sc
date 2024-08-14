@@ -129,8 +129,7 @@ pub trait TrustModule: config::ConfigModule {
             .to(&contract)
             .typed(earn_proxy::EarnProxy)
             .renew_virtual_stake_endpoint(entity, user, trust)
-            .async_call()
-            .call_and_exit();
+            .sync_call();
     }
 
     #[storage_mapper("trust:score")]
