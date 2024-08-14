@@ -8,6 +8,7 @@ multiversx_sc::derive_imports!();
 pub mod config;
 pub mod trust;
 pub mod errors;
+pub mod earn_proxy;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
