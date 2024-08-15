@@ -26,9 +26,7 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
     }
 
     #[upgrade]
-    fn upgrade(&self, reward_token: TokenIdentifier) {
-        self.reward_token().set(&reward_token);
-    }
+    fn upgrade(&self) {}
 
     #[payable("*")]
     #[endpoint(burnForTrust)]
