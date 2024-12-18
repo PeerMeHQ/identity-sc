@@ -6,9 +6,9 @@ multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 pub mod config;
-pub mod trust;
-pub mod errors;
 pub mod earn_proxy;
+pub mod errors;
+pub mod trust;
 
 #[derive(TopEncode, TopDecode, TypeAbi, Clone)]
 pub struct Avatar<M: ManagedTypeApi> {
@@ -30,15 +30,20 @@ pub trait Identity: config::ConfigModule + trust::TrustModule {
 
     #[payable("*")]
     #[endpoint(burnForTrust)]
-    fn burn_for_trust_endpoint(&self) {
-        let caller = self.blockchain().get_caller();
+    fn burn_for_trust_endpoint(&self, receiver: OptionalValue<ManagedAddress>) {
+        let receiver = if receiver.is_some() {
+            receiver.into_option().unwrap()
+        } else {
+            self.blockchain().get_caller()
+        };
+
         let payment = self.call_value().single_esdt();
         let core_token = self.core_token().get();
         require!(payment.token_identifier == core_token, "invalid token");
 
         self.send().esdt_local_burn(&payment.token_identifier, payment.token_nonce, &payment.amount);
 
-        let user = self.get_or_create_trusted_user(&caller);
+        let user = self.get_or_create_trusted_user(&receiver);
         let trust = self.calculate_trust_from_tokens(&payment.amount, CORE_TOKEN_DECIMALS);
 
         let multiplier = if !self.core_token_burn_trust_multiplier().is_empty() {
